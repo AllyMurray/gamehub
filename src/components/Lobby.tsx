@@ -28,27 +28,47 @@ const Lobby = ({ onHost, onJoin, onPlaySolo }: LobbyProps) => {
   };
 
   return (
-    <div className="lobby">
+    <div className="lobby" role="main" aria-label="Wordle game lobby">
       <div className="lobby-content">
         <h1 className="lobby-title">Wordle</h1>
         <p className="lobby-subtitle">Play together with a partner</p>
 
-        <div className="lobby-buttons">
-          <button className="lobby-btn primary" onClick={onPlaySolo}>
+        <div className="lobby-buttons" role="group" aria-label="Game mode selection">
+          <button
+            className="lobby-btn primary"
+            onClick={onPlaySolo}
+            aria-label="Play solo game"
+          >
             Play Solo
           </button>
 
-          <button className="lobby-btn host" onClick={onHost}>
+          <button
+            className="lobby-btn host"
+            onClick={onHost}
+            aria-label="Host a multiplayer game"
+          >
             Host Game
           </button>
 
           {!showJoin ? (
-            <button className="lobby-btn join" onClick={() => setShowJoin(true)}>
+            <button
+              className="lobby-btn join"
+              onClick={() => setShowJoin(true)}
+              aria-label="Join an existing multiplayer game"
+            >
               Join Game
             </button>
           ) : (
-            <div className="join-input-container">
+            <div
+              className="join-input-container"
+              role="group"
+              aria-label="Join game form"
+            >
+              <label htmlFor="join-code" className="sr-only">
+                Enter 6-character session code
+              </label>
               <input
+                id="join-code"
                 type="text"
                 className="join-input"
                 placeholder="Enter 6-digit code"
@@ -57,12 +77,17 @@ const Lobby = ({ onHost, onJoin, onPlaySolo }: LobbyProps) => {
                 onKeyDown={handleKeyDown}
                 maxLength={6}
                 autoFocus
+                aria-describedby="join-code-hint"
               />
+              <span id="join-code-hint" className="sr-only">
+                {joinCode.length} of 6 characters entered
+              </span>
               <div className="join-actions">
                 <button
                   className="lobby-btn join-confirm"
                   onClick={handleJoin}
                   disabled={joinCode.length !== 6}
+                  aria-label="Confirm and join game"
                 >
                   Join
                 </button>
@@ -72,6 +97,7 @@ const Lobby = ({ onHost, onJoin, onPlaySolo }: LobbyProps) => {
                     setShowJoin(false);
                     setJoinCode('');
                   }}
+                  aria-label="Cancel joining game"
                 >
                   Cancel
                 </button>
