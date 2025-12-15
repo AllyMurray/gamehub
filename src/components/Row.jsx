@@ -21,7 +21,7 @@ const Row = ({ guess, currentGuess, wordLength, isCurrentRow, shake }) => {
         {Array(wordLength)
           .fill('')
           .map((_, i) => (
-            <Tile key={i} letter={letters[i] || ''} isCurrentRow={true} position={i} />
+            <Tile key={i} letter={letters[i] || ''} position={i} />
           ))}
       </div>
     );

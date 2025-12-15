@@ -17,10 +17,13 @@ export const useMultiplayer = () => {
   const [connectionStatus, setConnectionStatus] = useState('disconnected'); // 'disconnected' | 'connecting' | 'connected' | 'error'
   const [errorMessage, setErrorMessage] = useState('');
   const [partnerConnected, setPartnerConnected] = useState(false);
+  const [pendingSuggestion, setPendingSuggestion] = useState(null); // { word: string } from viewer
 
   const peerRef = useRef(null);
   const connectionRef = useRef(null);
   const gameStateCallbackRef = useRef(null);
+  const suggestionResponseCallbackRef = useRef(null);
+  const hostGameRef = useRef(null);
 
   // Cleanup peer connection
   const cleanup = useCallback(() => {
@@ -33,6 +36,7 @@ export const useMultiplayer = () => {
       peerRef.current = null;
     }
     setPartnerConnected(false);
+    setPendingSuggestion(null);
   }, []);
 
   // Host a new game session
@@ -55,18 +59,40 @@ export const useMultiplayer = () => {
     });
 
     peer.on('connection', (conn) => {
+      // Close old connection if exists (for rejoin support)
+      if (connectionRef.current) {
+        connectionRef.current.close();
+      }
       connectionRef.current = conn;
+      setPendingSuggestion(null); // Clear any pending suggestion from old viewer
 
       conn.on('open', () => {
         setPartnerConnected(true);
       });
 
+      conn.on('data', (data) => {
+        if (data.type === 'request-state') {
+          // State request handled by App.jsx useEffect
+        } else if (data.type === 'suggest-word') {
+          setPendingSuggestion({ word: data.word });
+        } else if (data.type === 'clear-suggestion') {
+          setPendingSuggestion(null);
+        }
+      });
+
       conn.on('close', () => {
-        setPartnerConnected(false);
+        // Only set disconnected if this is still the current connection
+        if (connectionRef.current === conn) {
+          setPartnerConnected(false);
+          setPendingSuggestion(null);
+        }
       });
 
       conn.on('error', () => {
-        setPartnerConnected(false);
+        if (connectionRef.current === conn) {
+          setPartnerConnected(false);
+          setPendingSuggestion(null);
+        }
       });
     });
 
@@ -75,7 +101,7 @@ export const useMultiplayer = () => {
       if (err.type === 'unavailable-id') {
         // Session code already taken, try again
         setConnectionStatus('disconnected');
-        setTimeout(() => hostGame(), 100);
+        setTimeout(() => hostGameRef.current?.(), 100);
       } else {
         setConnectionStatus('error');
         setErrorMessage('Connection error. Please try again.');
@@ -84,6 +110,11 @@ export const useMultiplayer = () => {
 
     peerRef.current = peer;
   }, [cleanup]);
+
+  // Store hostGame in ref for self-reference in error handler
+  useEffect(() => {
+    hostGameRef.current = hostGame;
+  }, [hostGame]);
 
   // Join an existing game session
   const joinGame = useCallback((code) => {
@@ -115,6 +146,10 @@ export const useMultiplayer = () => {
       conn.on('data', (data) => {
         if (data.type === 'game-state' && gameStateCallbackRef.current) {
           gameStateCallbackRef.current(data.state);
+        } else if (data.type === 'suggestion-accepted' || data.type === 'suggestion-rejected') {
+          if (suggestionResponseCallbackRef.current) {
+            suggestionResponseCallbackRef.current(data.type === 'suggestion-accepted');
+          }
         }
       });
 
@@ -155,20 +190,43 @@ export const useMultiplayer = () => {
     gameStateCallbackRef.current = callback;
   }, []);
 
-  // Handle incoming data for host (to respond to state requests)
-  useEffect(() => {
-    if (role === 'host' && connectionRef.current) {
-      const conn = connectionRef.current;
-      const handler = (data) => {
-        if (data.type === 'request-state') {
-          // The host's game state will be sent via sendGameState
-          // This is handled by the useWordle hook integration
-        }
-      };
-      conn.on('data', handler);
-      return () => conn.off('data', handler);
+  // Send a word suggestion to host (called by viewer)
+  const sendSuggestion = useCallback((word) => {
+    if (role === 'viewer' && connectionRef.current && connectionRef.current.open) {
+      connectionRef.current.send({ type: 'suggest-word', word });
     }
-  }, [role, partnerConnected]);
+  }, [role]);
+
+  // Clear suggestion on host (called by viewer when typing changes)
+  const clearSuggestion = useCallback(() => {
+    if (role === 'viewer' && connectionRef.current && connectionRef.current.open) {
+      connectionRef.current.send({ type: 'clear-suggestion' });
+    }
+  }, [role]);
+
+  // Accept the pending suggestion (called by host)
+  const acceptSuggestion = useCallback(() => {
+    if (role === 'host' && connectionRef.current && connectionRef.current.open && pendingSuggestion) {
+      connectionRef.current.send({ type: 'suggestion-accepted' });
+      const word = pendingSuggestion.word;
+      setPendingSuggestion(null);
+      return word;
+    }
+    return null;
+  }, [role, pendingSuggestion]);
+
+  // Reject the pending suggestion (called by host)
+  const rejectSuggestion = useCallback(() => {
+    if (role === 'host' && connectionRef.current && connectionRef.current.open) {
+      connectionRef.current.send({ type: 'suggestion-rejected' });
+      setPendingSuggestion(null);
+    }
+  }, [role]);
+
+  // Register callback for suggestion response (used by viewer)
+  const onSuggestionResponse = useCallback((callback) => {
+    suggestionResponseCallbackRef.current = callback;
+  }, []);
 
   // Leave the current session
   const leaveSession = useCallback(() => {
@@ -190,11 +248,17 @@ export const useMultiplayer = () => {
     connectionStatus,
     errorMessage,
     partnerConnected,
+    pendingSuggestion,
     hostGame,
     joinGame,
     leaveSession,
     sendGameState,
     onGameStateReceived,
+    sendSuggestion,
+    clearSuggestion,
+    acceptSuggestion,
+    rejectSuggestion,
+    onSuggestionResponse,
     isHost: role === 'host',
     isViewer: role === 'viewer',
     isConnected: connectionStatus === 'connected',
