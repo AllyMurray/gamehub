@@ -5,18 +5,28 @@ const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
 
 export const useWordle = (options = {}) => {
-  const { isViewer = false, onStateChange } = options;
+  const { isViewer = false, onStateChange, onViewerGuessChange } = options;
 
   const [solution, setSolution] = useState(() => getRandomWord());
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
+  const [viewerGuess, setViewerGuess] = useState(''); // Viewer's local suggestion
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [shake, setShake] = useState(false);
   const [message, setMessage] = useState('');
 
   const onStateChangeRef = useRef(onStateChange);
-  onStateChangeRef.current = onStateChange;
+  const onViewerGuessChangeRef = useRef(onViewerGuessChange);
+
+  // Update refs in effect to avoid setting during render
+  useEffect(() => {
+    onStateChangeRef.current = onStateChange;
+  }, [onStateChange]);
+
+  useEffect(() => {
+    onViewerGuessChangeRef.current = onViewerGuessChange;
+  }, [onViewerGuessChange]);
 
   // Check if a word is valid (in word list)
   const isValidWord = useCallback((word) => {
@@ -81,8 +91,21 @@ export const useWordle = (options = {}) => {
   // Handle keyboard input
   const handleKeyPress = useCallback((key) => {
     if (gameOver) return;
-    if (isViewer) return; // Viewers cannot make guesses
 
+    // Viewer typing for suggestions
+    if (isViewer) {
+      if (key === 'ENTER') {
+        // Viewer presses enter to submit suggestion (handled by App.jsx)
+        return 'submit-suggestion';
+      } else if (key === 'BACKSPACE') {
+        setViewerGuess(prev => prev.slice(0, -1));
+      } else if (viewerGuess.length < WORD_LENGTH && /^[A-Z]$/.test(key)) {
+        setViewerGuess(prev => prev + key);
+      }
+      return;
+    }
+
+    // Host input handling
     if (key === 'ENTER') {
       if (currentGuess.length !== WORD_LENGTH) {
         setMessage('Not enough letters');
@@ -123,7 +146,7 @@ export const useWordle = (options = {}) => {
     } else if (currentGuess.length < WORD_LENGTH && /^[A-Z]$/.test(key)) {
       setCurrentGuess(prev => prev + key);
     }
-  }, [currentGuess, gameOver, guesses, solution, isValidWord, getLetterStatus, isViewer]);
+  }, [currentGuess, viewerGuess, gameOver, guesses, solution, isValidWord, getLetterStatus, isViewer]);
 
   // Get keyboard letter statuses for coloring
   const getKeyboardStatus = useCallback(() => {
@@ -148,11 +171,47 @@ export const useWordle = (options = {}) => {
     return status;
   }, [guesses]);
 
+  // Submit a specific word (used by host to accept viewer suggestions)
+  const submitWord = useCallback((word) => {
+    if (gameOver || isViewer) return false;
+    if (word.length !== WORD_LENGTH) return false;
+    if (!isValidWord(word)) return false;
+
+    const letterStatus = getLetterStatus(word, solution);
+    const newGuess = { word, status: letterStatus };
+    const newGuesses = [...guesses, newGuess];
+    setGuesses(newGuesses);
+    setCurrentGuess('');
+
+    if (word === solution) {
+      setWon(true);
+      setGameOver(true);
+      setMessage('Excellent!');
+    } else if (newGuesses.length >= MAX_GUESSES) {
+      setGameOver(true);
+      setMessage(`The word was ${solution}`);
+    }
+    return true;
+  }, [gameOver, guesses, solution, isValidWord, getLetterStatus, isViewer]);
+
+  // Clear viewer guess (when suggestion is accepted/rejected or game state changes)
+  const clearViewerGuess = useCallback(() => {
+    setViewerGuess('');
+  }, []);
+
+  // Notify when viewer guess changes
+  useEffect(() => {
+    if (isViewer && onViewerGuessChangeRef.current) {
+      onViewerGuessChangeRef.current(viewerGuess);
+    }
+  }, [viewerGuess, isViewer]);
+
   // Start a new game
   const newGame = useCallback(() => {
     setSolution(getRandomWord());
     setGuesses([]);
     setCurrentGuess('');
+    setViewerGuess('');
     setGameOver(false);
     setWon(false);
     setMessage('');
@@ -162,6 +221,7 @@ export const useWordle = (options = {}) => {
     solution,
     guesses,
     currentGuess,
+    viewerGuess,
     gameOver,
     won,
     shake,
@@ -171,6 +231,8 @@ export const useWordle = (options = {}) => {
     newGame,
     getGameState,
     setGameState,
+    submitWord,
+    clearViewerGuess,
     maxGuesses: MAX_GUESSES,
     wordLength: WORD_LENGTH
   };

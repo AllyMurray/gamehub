@@ -1,6 +1,6 @@
 import './Tile.css';
 
-const Tile = ({ letter, status, isCurrentRow, position }) => {
+const Tile = ({ letter, status, position }) => {
   const hasLetter = letter !== '';
 
   return (
