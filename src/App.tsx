@@ -1,7 +1,9 @@
 import Board from './components/Board';
 import Keyboard from './components/Keyboard';
 import Lobby from './components/Lobby';
+import ScreenReaderAnnouncement from './components/ScreenReaderAnnouncement';
 import { useGameContext } from './contexts/GameContext';
+import { useGameAnnouncements } from './hooks/useGameAnnouncements';
 import './App.css';
 
 function App() {
@@ -36,6 +38,15 @@ function App() {
     },
   } = useGameContext();
 
+  // Generate screen reader announcements for game events
+  const announcement = useGameAnnouncements({
+    guesses,
+    gameOver,
+    won,
+    shake,
+    message,
+  });
+
   // Show lobby if no game mode selected
   if (!gameMode) {
     return (
@@ -49,9 +60,16 @@ function App() {
 
   return (
     <div className="app">
+      {/* Screen reader announcements for game events */}
+      <ScreenReaderAnnouncement message={announcement} priority="polite" />
+
       <header className="header">
         <div className="header-content">
-          <button className="back-btn" onClick={handleLeave}>
+          <button
+            className="back-btn"
+            onClick={handleLeave}
+            aria-label="Leave game and return to lobby"
+          >
             ← Back
           </button>
           <h1>Wordle</h1>
@@ -111,14 +129,26 @@ function App() {
 
         {/* Suggestion panel for host */}
         {isHost && multiplayer.pendingSuggestion && !gameOver && (
-          <div className="suggestion-panel">
+          <div
+            className="suggestion-panel"
+            role="region"
+            aria-label="Partner suggestion"
+          >
             <span className="suggestion-label">Partner suggests:</span>
             <span className="suggestion-word">{multiplayer.pendingSuggestion.word}</span>
             <div className="suggestion-actions">
-              <button className="suggestion-btn accept" onClick={handleAcceptSuggestion}>
+              <button
+                className="suggestion-btn accept"
+                onClick={handleAcceptSuggestion}
+                aria-label={`Accept suggestion: ${multiplayer.pendingSuggestion.word}`}
+              >
                 Accept
               </button>
-              <button className="suggestion-btn reject" onClick={handleRejectSuggestion}>
+              <button
+                className="suggestion-btn reject"
+                onClick={handleRejectSuggestion}
+                aria-label={`Reject suggestion: ${multiplayer.pendingSuggestion.word}`}
+              >
                 Reject
               </button>
             </div>
@@ -134,7 +164,11 @@ function App() {
         />
 
         {gameOver && !isViewer && (
-          <button className="play-again" onClick={handleNewGame}>
+          <button
+            className="play-again"
+            onClick={handleNewGame}
+            aria-label="Start a new game"
+          >
             Play Again
           </button>
         )}

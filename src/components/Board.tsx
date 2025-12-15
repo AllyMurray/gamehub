@@ -12,7 +12,11 @@ interface BoardProps {
 
 const Board = ({ guesses, currentGuess, maxGuesses, wordLength, shake }: BoardProps) => {
   return (
-    <div className="board">
+    <div
+      className="board"
+      role="grid"
+      aria-label={`Wordle game board. ${guesses.length} of ${maxGuesses} guesses used.`}
+    >
       {Array(maxGuesses)
         .fill(null)
         .map((_, i) => {
@@ -25,6 +29,8 @@ const Board = ({ guesses, currentGuess, maxGuesses, wordLength, shake }: BoardPr
               wordLength={wordLength}
               isCurrentRow={isCurrentRow}
               shake={isCurrentRow && shake}
+              rowNumber={i + 1}
+              totalRows={maxGuesses}
             />
           );
         })}
