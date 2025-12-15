@@ -1,33 +1,40 @@
 import Board from './components/Board';
 import Keyboard from './components/Keyboard';
 import Lobby from './components/Lobby';
-import { useGameSession } from './hooks/useGameSession';
+import { useGameContext } from './contexts/GameContext';
 import './App.css';
 
 function App() {
   const {
     gameMode,
-    guesses,
-    currentGuess,
-    viewerGuess,
-    gameOver,
-    won,
-    shake,
-    message,
-    maxGuesses,
-    wordLength,
-    suggestionStatus,
-    multiplayer,
-    handleKeyPress,
-    getKeyboardStatus,
-    handlePlaySolo,
-    handleHost,
-    handleJoin,
-    handleLeave,
-    handleNewGame,
-    handleAcceptSuggestion,
-    handleRejectSuggestion,
-  } = useGameSession();
+    isHost,
+    isViewer,
+    partnerConnected,
+    sessionCode,
+    connectionStatus,
+    session: {
+      guesses,
+      currentGuess,
+      viewerGuess,
+      gameOver,
+      won,
+      shake,
+      message,
+      maxGuesses,
+      wordLength,
+      suggestionStatus,
+      multiplayer,
+      handleKeyPress,
+      getKeyboardStatus,
+      handlePlaySolo,
+      handleHost,
+      handleJoin,
+      handleLeave,
+      handleNewGame,
+      handleAcceptSuggestion,
+      handleRejectSuggestion,
+    },
+  } = useGameContext();
 
   // Show lobby if no game mode selected
   if (!gameMode) {
@@ -55,24 +62,24 @@ function App() {
       {/* Connection status for multiplayer */}
       {gameMode === 'multiplayer' && (
         <div className="connection-status">
-          {multiplayer.isHost && (
+          {isHost && (
             <div className="session-info">
               <span className="session-label">Share code:</span>
-              <span className="session-code">{multiplayer.sessionCode}</span>
-              {multiplayer.partnerConnected ? (
+              <span className="session-code">{sessionCode}</span>
+              {partnerConnected ? (
                 <span className="partner-status connected">Partner connected</span>
               ) : (
                 <span className="partner-status waiting">Waiting for partner...</span>
               )}
             </div>
           )}
-          {multiplayer.isViewer && (
+          {isViewer && (
             <div className="session-info">
               <span className="viewer-label">Playing with partner</span>
-              {multiplayer.connectionStatus === 'connecting' && (
+              {connectionStatus === 'connecting' && (
                 <span className="partner-status waiting">Connecting...</span>
               )}
-              {multiplayer.connectionStatus === 'connected' && !suggestionStatus && (
+              {connectionStatus === 'connected' && !suggestionStatus && (
                 <span className="partner-status connected">Type a word to suggest</span>
               )}
               {suggestionStatus === 'pending' && (
@@ -87,7 +94,7 @@ function App() {
               {suggestionStatus === 'invalid' && (
                 <span className="partner-status error">Not in word list</span>
               )}
-              {multiplayer.connectionStatus === 'error' && (
+              {connectionStatus === 'error' && (
                 <span className="partner-status error">{multiplayer.errorMessage}</span>
               )}
             </div>
@@ -103,7 +110,7 @@ function App() {
         )}
 
         {/* Suggestion panel for host */}
-        {multiplayer.isHost && multiplayer.pendingSuggestion && !gameOver && (
+        {isHost && multiplayer.pendingSuggestion && !gameOver && (
           <div className="suggestion-panel">
             <span className="suggestion-label">Partner suggests:</span>
             <span className="suggestion-word">{multiplayer.pendingSuggestion.word}</span>
@@ -120,13 +127,13 @@ function App() {
 
         <Board
           guesses={guesses}
-          currentGuess={multiplayer.isViewer ? viewerGuess : currentGuess}
+          currentGuess={isViewer ? viewerGuess : currentGuess}
           maxGuesses={maxGuesses}
           wordLength={wordLength}
           shake={shake}
         />
 
-        {gameOver && !multiplayer.isViewer && (
+        {gameOver && !isViewer && (
           <button className="play-again" onClick={handleNewGame}>
             Play Again
           </button>

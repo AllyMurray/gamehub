@@ -88,8 +88,10 @@ useEffect(() => {
 
 **Resolution:** Created `useGameSession` hook to extract game session logic. App.tsx now ~145 lines, focused purely on rendering.
 
-#### 2. Missing Context API
-For deeply shared state like game mode and multiplayer status, React Context could reduce prop drilling and simplify the component tree.
+#### 2. ~~Missing Context API~~ ✅ **RESOLVED**
+~~For deeply shared state like game mode and multiplayer status, React Context could reduce prop drilling and simplify the component tree.~~
+
+**Resolution:** Created `GameContext` (`src/contexts/GameContext.tsx`) that provides game mode and multiplayer status (isHost, isViewer, partnerConnected, sessionCode, connectionStatus) to any component in the tree. The `GameProvider` wraps the app in `main.tsx` and exposes both direct access to common status values and the full session object. App.tsx now uses `useGameContext()` instead of calling `useGameSession()` directly, enabling any child component to access game state without prop drilling.
 
 ---
 
