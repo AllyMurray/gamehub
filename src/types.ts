@@ -44,6 +44,7 @@ export interface UseWordleReturn {
   setGameState: (state: Partial<GameState>) => void;
   submitWord: (word: string) => boolean;
   clearViewerGuess: () => void;
+  isValidWord: (word: string) => boolean;
   maxGuesses: number;
   wordLength: number;
 }
@@ -86,4 +87,4 @@ export interface UseMultiplayerReturn {
 export type GameMode = null | 'solo' | 'multiplayer';
 
 // Suggestion status for viewer
-export type SuggestionStatus = null | 'pending' | 'accepted' | 'rejected';
+export type SuggestionStatus = null | 'pending' | 'accepted' | 'rejected' | 'invalid';

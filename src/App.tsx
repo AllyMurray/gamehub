@@ -4,6 +4,7 @@ import Keyboard from './components/Keyboard';
 import Lobby from './components/Lobby';
 import { useWordle } from './hooks/useWordle';
 import { useMultiplayer } from './hooks/useMultiplayer';
+import { WORDS } from './data/words';
 import type { GameMode, SuggestionStatus } from './types';
 import './App.css';
 
@@ -13,11 +14,19 @@ function App() {
 
   const multiplayer = useMultiplayer();
 
-  // Handle viewer guess changes - send to host as suggestion preview
+  // Handle viewer guess changes - validate and send to host as suggestion preview
   const handleViewerGuessChange = useCallback((guess: string): void => {
     if (guess.length === 5) {
-      multiplayer.sendSuggestion(guess);
+      // Validate word before sending suggestion
+      if (WORDS.includes(guess.toLowerCase())) {
+        setSuggestionStatus(null);
+        multiplayer.sendSuggestion(guess);
+      } else {
+        setSuggestionStatus('invalid');
+        multiplayer.clearSuggestion();
+      }
     } else {
+      setSuggestionStatus(null);
       multiplayer.clearSuggestion();
     }
   }, [multiplayer]);
@@ -88,9 +97,12 @@ function App() {
 
     if (e.key === 'Enter') {
       const result = handleKeyPress('ENTER');
-      // If viewer pressed enter with a complete word, mark as pending
+      // If viewer pressed enter with a complete word, mark as pending only if valid
       if (result === 'submit-suggestion' && viewerGuess.length === 5) {
-        setSuggestionStatus('pending');
+        if (WORDS.includes(viewerGuess.toLowerCase())) {
+          setSuggestionStatus('pending');
+        }
+        // Invalid words already have status set by handleViewerGuessChange
       }
     } else if (e.key === 'Backspace') {
       handleKeyPress('BACKSPACE');
@@ -203,6 +215,9 @@ function App() {
               )}
               {suggestionStatus === 'rejected' && (
                 <span className="partner-status error">Suggestion rejected</span>
+              )}
+              {suggestionStatus === 'invalid' && (
+                <span className="partner-status error">Not in word list</span>
               )}
               {multiplayer.connectionStatus === 'error' && (
                 <span className="partner-status error">{multiplayer.errorMessage}</span>
