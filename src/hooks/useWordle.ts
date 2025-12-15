@@ -241,6 +241,7 @@ export const useWordle = (options: UseWordleOptions = {}): UseWordleReturn => {
     setGameState,
     submitWord,
     clearViewerGuess,
+    isValidWord,
     maxGuesses: MAX_GUESSES,
     wordLength: WORD_LENGTH
   };
