@@ -6,6 +6,8 @@ import {
   useUIStore,
   registerGameStateCallback,
   registerSuggestionResponseCallback,
+  MAX_GUESSES_COUNT,
+  WORD_LENGTH_COUNT,
 } from '../stores';
 import type {
   GameMode,
@@ -122,7 +124,7 @@ export const useGameSession = (): UseGameSessionReturn => {
   // Handle viewer guess changes - validate and send to host as suggestion
   const handleViewerGuessChange = useCallback(
     (guess: string): void => {
-      if (guess.length === 5) {
+      if (guess.length === WORD_LENGTH_COUNT) {
         if (WORDS.includes(guess.toLowerCase())) {
           setSuggestionStatus(null);
           sendSuggestion(guess);
@@ -191,7 +193,7 @@ export const useGameSession = (): UseGameSessionReturn => {
           const newGuess = viewerGuess.slice(0, -1);
           setViewerGuess(newGuess);
           handleViewerGuessChange(newGuess);
-        } else if (viewerGuess.length < 5 && /^[A-Z]$/.test(key)) {
+        } else if (viewerGuess.length < WORD_LENGTH_COUNT && /^[A-Z]$/.test(key)) {
           const newGuess = viewerGuess + key;
           setViewerGuess(newGuess);
           handleViewerGuessChange(newGuess);
@@ -204,7 +206,7 @@ export const useGameSession = (): UseGameSessionReturn => {
         submitGuess();
       } else if (key === 'BACKSPACE') {
         setCurrentGuess(currentGuess.slice(0, -1));
-      } else if (currentGuess.length < 5 && /^[A-Z]$/.test(key)) {
+      } else if (currentGuess.length < WORD_LENGTH_COUNT && /^[A-Z]$/.test(key)) {
         setCurrentGuess(currentGuess + key);
       }
     },
@@ -227,7 +229,7 @@ export const useGameSession = (): UseGameSessionReturn => {
 
       if (e.key === 'Enter') {
         const result = handleKeyPress('ENTER');
-        if (result === 'submit-suggestion' && viewerGuess.length === 5) {
+        if (result === 'submit-suggestion' && viewerGuess.length === WORD_LENGTH_COUNT) {
           if (WORDS.includes(viewerGuess.toLowerCase())) {
             setSuggestionStatus('pending');
           }
@@ -301,8 +303,8 @@ export const useGameSession = (): UseGameSessionReturn => {
     won,
     shake,
     message,
-    maxGuesses: 6,
-    wordLength: 5,
+    maxGuesses: MAX_GUESSES_COUNT,
+    wordLength: WORD_LENGTH_COUNT,
     suggestionStatus,
 
     // Multiplayer state
