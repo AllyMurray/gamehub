@@ -138,10 +138,8 @@ src/
 │   ├── multiplayerStore.ts # P2P connection state
 │   ├── statsStore.ts    # Statistics with persistence
 │   └── uiStore.ts       # UI state (modals, game mode)
-├── contexts/
-│   └── GameContext.tsx  # Backwards-compatible context wrapper
 ├── hooks/
-│   ├── useGameSession.ts # Session orchestration (uses stores)
+│   ├── useGameSession.ts # Session orchestration
 │   └── useGameAnnouncements.ts
 ├── data/
 │   └── words.ts         # Word list (~1200 words)
@@ -181,11 +179,8 @@ flowchart TB
         UGS["useGameSession<br/>Coordinates stores"]
     end
 
-    subgraph Context["GameContext (optional)"]
-        GC["Backwards-compatible wrapper"]
-    end
-
     subgraph Components["UI Components"]
+        App
         Board
         Keyboard
         Lobby
@@ -193,12 +188,12 @@ flowchart TB
 
     GS --> UGS
     MS --> UGS
-    SS --> GC
-    US --> GC
-    UGS --> GC
-    GC --> Components
-    GS -.-> |"Direct access"| Components
-    MS -.-> |"Direct access"| Components
+    UGS --> App
+    SS --> App
+    US --> App
+    App --> Board
+    App --> Keyboard
+    App --> Lobby
 ```
 
 ### Store Overview
@@ -250,31 +245,6 @@ import { useUIStore } from './stores';
 const gameMode = useUIStore((s) => s.gameMode);
 const isStatsOpen = useUIStore((s) => s.isStatsOpen);
 ```
-
-### Benefits Over Previous Context Approach
-
-| Aspect | Previous (Context) | Current (Zustand) |
-|--------|-------------------|-------------------|
-| **Re-renders** | All consumers on any change | Only when selected slice changes |
-| **Provider wrapping** | Required `<GameProvider>` | Optional, stores work standalone |
-| **Accessing in callbacks** | Needed `useRef` patterns | `store.getState()` |
-| **localStorage sync** | Manual `useEffect` | Built-in `persist` middleware |
-| **Bundle size** | Built-in (0KB) | ~1KB |
-| **DevTools** | React DevTools only | Redux DevTools compatible |
-
-### Example: Selector Optimization
-
-```typescript
-// ❌ Context approach - re-renders on ANY state change
-const { guesses, currentGuess, sessionCode, ... } = useGameContext();
-
-// ✅ Zustand approach - only re-renders when guesses change
-const guesses = useGameStore((s) => s.guesses);
-```
-
-### Backwards Compatibility
-
-The `GameContext` and `useGameContext()` hook are still available for components that need the full session object. They now use Zustand stores internally.
 
 ## Game Logic
 

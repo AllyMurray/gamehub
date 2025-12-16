@@ -4,7 +4,8 @@ import Keyboard from './components/Keyboard';
 import Lobby from './components/Lobby';
 import ScreenReaderAnnouncement from './components/ScreenReaderAnnouncement';
 import Stats from './components/Stats';
-import { useGameContext } from './contexts/GameContext';
+import { useGameSession } from './hooks/useGameSession';
+import { useStatsStore, useUIStore } from './stores';
 import { useGameAnnouncements } from './hooks/useGameAnnouncements';
 import { sanitizeSessionCode, isValidSessionCode } from './types';
 import './App.css';
@@ -39,45 +40,55 @@ const generateWhatsAppUrl = (sessionCode: string): string => {
 
 function App() {
   const [copyFeedback, setCopyFeedback] = useState(false);
+
+  // Game session from orchestration hook
   const {
     gameMode,
+    guesses,
+    currentGuess,
+    viewerGuess,
+    gameOver,
+    won,
+    shake,
+    message,
+    maxGuesses,
+    wordLength,
+    suggestionStatus,
     isHost,
     isViewer,
     partnerConnected,
     sessionCode,
     sessionPin,
     connectionStatus,
-    stats,
-    isStatsOpen,
-    openStats,
-    closeStats,
-    session: {
-      guesses,
-      currentGuess,
-      viewerGuess,
-      gameOver,
-      won,
-      shake,
-      message,
-      maxGuesses,
-      wordLength,
-      suggestionStatus,
-      errorMessage,
-      pendingSuggestion,
-      handleKeyPress,
-      getKeyboardStatus,
-      handlePlaySolo,
-      handleHost,
-      handleJoin,
-      handleLeave,
-      handleNewGame,
-      handleAcceptSuggestion,
-      handleRejectSuggestion,
-    },
-  } = useGameContext();
+    errorMessage,
+    pendingSuggestion,
+    handleKeyPress,
+    getKeyboardStatus,
+    handlePlaySolo,
+    handleHost,
+    handleJoin,
+    handleLeave,
+    handleNewGame,
+    handleAcceptSuggestion,
+    handleRejectSuggestion,
+  } = useGameSession();
+
+  // Stats from store
+  const stats = useStatsStore((s) => s.stats);
+  const recordGame = useStatsStore((s) => s.recordGame);
+
+  // UI state from store
+  const isStatsOpen = useUIStore((s) => s.isStatsOpen);
+  const openStats = useUIStore((s) => s.openStats);
+  const closeStats = useUIStore((s) => s.closeStats);
+
+  // Derived stats
+  const winPercentage = stats.gamesPlayed > 0
+    ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100)
+    : 0;
+  const maxDistributionValue = Math.max(...stats.guessDistribution, 1);
 
   // Track game completion and record stats using a stable identifier
-  // We track via a combination of guesses.length + gameOver + won to detect game completion
   const gameIdentifier = gameOver ? `${guesses.length}-${won}` : null;
   const lastRecordedGameRef = useRef<string | null>(null);
 
@@ -91,7 +102,7 @@ function App() {
       lastRecordedGameRef.current !== gameIdentifier
     ) {
       lastRecordedGameRef.current = gameIdentifier;
-      stats.recordGame(won, guesses.length, gameMode === 'solo' ? 'solo' : 'multiplayer');
+      recordGame(won, guesses.length, gameMode === 'solo' ? 'solo' : 'multiplayer');
       openStats();
     }
 
@@ -99,7 +110,7 @@ function App() {
     if (!gameOver && lastRecordedGameRef.current !== null) {
       lastRecordedGameRef.current = null;
     }
-  }, [gameOver, gameMode, isViewer, won, guesses.length, stats, openStats, gameIdentifier]);
+  }, [gameOver, gameMode, isViewer, won, guesses.length, recordGame, openStats, gameIdentifier]);
 
   // Generate screen reader announcements for game events
   const announcement = useGameAnnouncements({
@@ -297,9 +308,9 @@ function App() {
 
       {/* Statistics modal */}
       <Stats
-        stats={stats.stats}
-        winPercentage={stats.winPercentage}
-        maxDistributionValue={stats.maxDistributionValue}
+        stats={stats}
+        winPercentage={winPercentage}
+        maxDistributionValue={maxDistributionValue}
         isOpen={isStatsOpen}
         onClose={closeStats}
         lastGuessCount={won && gameOver ? guesses.length : undefined}
