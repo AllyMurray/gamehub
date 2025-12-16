@@ -1,7 +1,9 @@
+import { useEffect, useRef } from 'react';
 import Board from './components/Board';
 import Keyboard from './components/Keyboard';
 import Lobby from './components/Lobby';
 import ScreenReaderAnnouncement from './components/ScreenReaderAnnouncement';
+import Stats from './components/Stats';
 import { useGameContext } from './contexts/GameContext';
 import { useGameAnnouncements } from './hooks/useGameAnnouncements';
 import './App.css';
@@ -15,6 +17,10 @@ function App() {
     sessionCode,
     sessionPin,
     connectionStatus,
+    stats,
+    isStatsOpen,
+    openStats,
+    closeStats,
     session: {
       guesses,
       currentGuess,
@@ -38,6 +44,31 @@ function App() {
       handleRejectSuggestion,
     },
   } = useGameContext();
+
+  // Track game completion and record stats using a stable identifier
+  // We track via a combination of guesses.length + gameOver + won to detect game completion
+  const gameIdentifier = gameOver ? `${guesses.length}-${won}` : null;
+  const lastRecordedGameRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // Only record stats when game ends, only once per game
+    if (
+      gameOver &&
+      gameMode &&
+      !isViewer &&
+      gameIdentifier !== null &&
+      lastRecordedGameRef.current !== gameIdentifier
+    ) {
+      lastRecordedGameRef.current = gameIdentifier;
+      stats.recordGame(won, guesses.length, gameMode === 'solo' ? 'solo' : 'multiplayer');
+      openStats();
+    }
+
+    // Reset tracking when game is not over (new game started)
+    if (!gameOver && lastRecordedGameRef.current !== null) {
+      lastRecordedGameRef.current = null;
+    }
+  }, [gameOver, gameMode, isViewer, won, guesses.length, stats, openStats, gameIdentifier]);
 
   // Generate screen reader announcements for game events
   const announcement = useGameAnnouncements({
@@ -74,7 +105,13 @@ function App() {
             ← Back
           </button>
           <h1>Wordle</h1>
-          <div className="header-spacer" />
+          <button
+            className="stats-btn"
+            onClick={openStats}
+            aria-label="View statistics"
+          >
+            Stats
+          </button>
         </div>
       </header>
 
@@ -185,6 +222,16 @@ function App() {
           disabled={gameOver}
         />
       </main>
+
+      {/* Statistics modal */}
+      <Stats
+        stats={stats.stats}
+        winPercentage={stats.winPercentage}
+        maxDistributionValue={stats.maxDistributionValue}
+        isOpen={isStatsOpen}
+        onClose={closeStats}
+        lastGuessCount={won && gameOver ? guesses.length : undefined}
+      />
     </div>
   );
 }
