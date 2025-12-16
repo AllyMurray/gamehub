@@ -62,7 +62,8 @@ function App() {
       maxGuesses,
       wordLength,
       suggestionStatus,
-      multiplayer,
+      errorMessage,
+      pendingSuggestion,
       handleKeyPress,
       getKeyboardStatus,
       handlePlaySolo,
@@ -227,7 +228,7 @@ function App() {
                 <span className="partner-status error">Not in word list</span>
               )}
               {connectionStatus === 'error' && (
-                <span className="partner-status error">{multiplayer.errorMessage}</span>
+                <span className="partner-status error">{errorMessage}</span>
               )}
             </div>
           )}
@@ -242,26 +243,26 @@ function App() {
         )}
 
         {/* Suggestion panel for host */}
-        {isHost && multiplayer.pendingSuggestion && !gameOver && (
+        {isHost && pendingSuggestion && !gameOver && (
           <div
             className="suggestion-panel"
             role="region"
             aria-label="Partner suggestion"
           >
             <span className="suggestion-label">Partner suggests:</span>
-            <span className="suggestion-word">{multiplayer.pendingSuggestion.word}</span>
+            <span className="suggestion-word">{pendingSuggestion.word}</span>
             <div className="suggestion-actions">
               <button
                 className="suggestion-btn accept"
                 onClick={handleAcceptSuggestion}
-                aria-label={`Accept suggestion: ${multiplayer.pendingSuggestion.word}`}
+                aria-label={`Accept suggestion: ${pendingSuggestion.word}`}
               >
                 Accept
               </button>
               <button
                 className="suggestion-btn reject"
                 onClick={handleRejectSuggestion}
-                aria-label={`Reject suggestion: ${multiplayer.pendingSuggestion.word}`}
+                aria-label={`Reject suggestion: ${pendingSuggestion.word}`}
               >
                 Reject
               </button>

@@ -23,6 +23,7 @@ A React-based Wordle clone with real-time peer-to-peer multiplayer support, buil
 | React 19 | UI framework with hooks |
 | TypeScript | Type safety and IDE support |
 | Vite | Build tool and dev server |
+| Zustand | State management with selectors |
 | PeerJS | P2P connections via WebRTC |
 | Zod | Runtime message validation |
 | Vitest | Unit testing framework |
@@ -131,12 +132,16 @@ src/
 │   ├── Lobby.tsx        # Game mode selection
 │   ├── ScreenReaderAnnouncement.tsx
 │   └── ErrorBoundary.tsx
+├── stores/              # Zustand state stores
+│   ├── index.ts         # Store exports
+│   ├── gameStore.ts     # Core game state
+│   ├── multiplayerStore.ts # P2P connection state
+│   ├── statsStore.ts    # Statistics with persistence
+│   └── uiStore.ts       # UI state (modals, game mode)
 ├── contexts/
-│   └── GameContext.tsx  # React Context for game state
+│   └── GameContext.tsx  # Backwards-compatible context wrapper
 ├── hooks/
-│   ├── useWordle.ts     # Core game logic
-│   ├── useGameSession.ts # Session orchestration
-│   ├── useMultiplayer.ts # P2P connection handling
+│   ├── useGameSession.ts # Session orchestration (uses stores)
 │   └── useGameAnnouncements.ts
 ├── data/
 │   └── words.ts         # Word list (~1200 words)
@@ -149,22 +154,35 @@ src/
 
 ## State Management
 
-The application uses React Context with custom hooks for state management, avoiding external dependencies like Redux.
+The application uses **Zustand** for state management, providing significant benefits over the previous React Context approach.
 
-### State Flow
+### Why Zustand?
+
+| Benefit | Description |
+|---------|-------------|
+| **Fine-grained subscriptions** | Components only re-render when their specific state slice changes |
+| **No Provider required** | Stores can be imported and used directly without wrapping the component tree |
+| **Access outside React** | Use `store.getState()` in WebRTC callbacks, timeouts, etc. |
+| **Built-in persistence** | The stats store uses `persist` middleware for automatic localStorage sync |
+| **Simpler than Redux** | Minimal boilerplate, ~1KB bundle size |
+
+### Store Architecture
 
 ```mermaid
 flowchart TB
-    subgraph Context["GameContext"]
-        GS["Game State"]
-        MS["Multiplayer State"]
-        Actions["Actions/Handlers"]
+    subgraph Stores["Zustand Stores"]
+        GS["gameStore<br/>solution, guesses, currentGuess"]
+        MS["multiplayerStore<br/>role, sessionCode, connectionStatus"]
+        SS["statsStore<br/>gamesPlayed, winStreak (persisted)"]
+        US["uiStore<br/>gameMode, isStatsOpen"]
     end
 
-    subgraph Hooks["Custom Hooks"]
-        UGS["useGameSession"]
-        UW["useWordle"]
-        UM["useMultiplayer"]
+    subgraph Hooks["Orchestration"]
+        UGS["useGameSession<br/>Coordinates stores"]
+    end
+
+    subgraph Context["GameContext (optional)"]
+        GC["Backwards-compatible wrapper"]
     end
 
     subgraph Components["UI Components"]
@@ -173,40 +191,90 @@ flowchart TB
         Lobby
     end
 
-    UW --> |"guesses, currentGuess"| UGS
-    UM --> |"connection state"| UGS
-    UGS --> |"combined state"| Context
-    Context --> |"state + handlers"| Components
-    Components --> |"user actions"| Actions
-    Actions --> |"dispatch"| Hooks
+    GS --> UGS
+    MS --> UGS
+    SS --> GC
+    US --> GC
+    UGS --> GC
+    GC --> Components
+    GS -.-> |"Direct access"| Components
+    MS -.-> |"Direct access"| Components
 ```
 
-### Key State Values
+### Store Overview
+
+#### gameStore - Core Game Logic
+```typescript
+import { useGameStore } from './stores';
+
+// Subscribe to specific slices (prevents unnecessary re-renders)
+const guesses = useGameStore((s) => s.guesses);
+const currentGuess = useGameStore((s) => s.currentGuess);
+const gameOver = useGameStore((s) => s.gameOver);
+
+// Actions
+const submitGuess = useGameStore((s) => s.submitGuess);
+const newGame = useGameStore((s) => s.newGame);
+```
+
+#### multiplayerStore - P2P Connection
+```typescript
+import { useMultiplayerStore } from './stores';
+
+// State
+const role = useMultiplayerStore((s) => s.role);
+const sessionCode = useMultiplayerStore((s) => s.sessionCode);
+const partnerConnected = useMultiplayerStore((s) => s.partnerConnected);
+
+// Actions
+const hostGame = useMultiplayerStore((s) => s.hostGame);
+const joinGame = useMultiplayerStore((s) => s.joinGame);
+
+// Access outside React (for WebRTC callbacks)
+const state = useMultiplayerStore.getState();
+```
+
+#### statsStore - Persisted Statistics
+```typescript
+import { useStatsStore } from './stores';
+
+// Auto-synced to localStorage via persist middleware
+const stats = useStatsStore((s) => s.stats);
+const recordGame = useStatsStore((s) => s.recordGame);
+```
+
+#### uiStore - UI State
+```typescript
+import { useUIStore } from './stores';
+
+const gameMode = useUIStore((s) => s.gameMode);
+const isStatsOpen = useUIStore((s) => s.isStatsOpen);
+```
+
+### Benefits Over Previous Context Approach
+
+| Aspect | Previous (Context) | Current (Zustand) |
+|--------|-------------------|-------------------|
+| **Re-renders** | All consumers on any change | Only when selected slice changes |
+| **Provider wrapping** | Required `<GameProvider>` | Optional, stores work standalone |
+| **Accessing in callbacks** | Needed `useRef` patterns | `store.getState()` |
+| **localStorage sync** | Manual `useEffect` | Built-in `persist` middleware |
+| **Bundle size** | Built-in (0KB) | ~1KB |
+| **DevTools** | React DevTools only | Redux DevTools compatible |
+
+### Example: Selector Optimization
 
 ```typescript
-interface GameContextValue {
-  // Game mode
-  gameMode: 'solo' | 'multiplayer' | null;
+// ❌ Context approach - re-renders on ANY state change
+const { guesses, currentGuess, sessionCode, ... } = useGameContext();
 
-  // Multiplayer shortcuts
-  isHost: boolean;
-  isViewer: boolean;
-  partnerConnected: boolean;
-  sessionCode: string;
-  connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
-
-  // Game session with full state and handlers
-  session: {
-    guesses: Guess[];
-    currentGuess: string;
-    gameOver: boolean;
-    won: boolean;
-    shake: boolean;
-    message: string;
-    // ... handlers
-  };
-}
+// ✅ Zustand approach - only re-renders when guesses change
+const guesses = useGameStore((s) => s.guesses);
 ```
+
+### Backwards Compatibility
+
+The `GameContext` and `useGameContext()` hook are still available for components that need the full session object. They now use Zustand stores internally.
 
 ## Game Logic
 

@@ -1,8 +1,20 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, type ReactNode, useState, useCallback } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useGameSession, type UseGameSessionReturn } from '../hooks/useGameSession';
-import { useStats, type UseStatsReturn } from '../hooks/useStats';
-import type { GameMode, ConnectionStatus } from '../types';
+import {
+  useStatsStore,
+  useUIStore,
+} from '../stores';
+import type { GameMode, ConnectionStatus, GameStatistics } from '../types';
+
+// Stats return type (for backwards compatibility)
+interface StatsReturn {
+  stats: GameStatistics;
+  winPercentage: number;
+  recordGame: (won: boolean, guessCount: number, gameMode: Exclude<GameMode, null>) => void;
+  resetStats: () => void;
+  maxDistributionValue: number;
+}
 
 // Context value type - exposes game mode and multiplayer status
 export interface GameContextValue {
@@ -18,7 +30,7 @@ export interface GameContextValue {
   connectionStatus: ConnectionStatus;
 
   // Statistics
-  stats: UseStatsReturn;
+  stats: StatsReturn;
   isStatsOpen: boolean;
   openStats: () => void;
   closeStats: () => void;
@@ -35,26 +47,57 @@ interface GameProviderProps {
   children: ReactNode;
 }
 
-// GameProvider component - wraps children and provides game context
+/**
+ * GameProvider component - wraps children and provides game context.
+ *
+ * This provider integrates with Zustand stores while maintaining
+ * backwards compatibility with components that use useGameContext().
+ *
+ * Note: Components can also access stores directly via:
+ * - useGameStore() for game state
+ * - useMultiplayerStore() for multiplayer state
+ * - useStatsStore() for statistics
+ * - useUIStore() for UI state
+ */
 export const GameProvider = ({ children }: GameProviderProps) => {
   const session = useGameSession();
-  const stats = useStats();
-  const [isStatsOpen, setIsStatsOpen] = useState(false);
 
-  const openStats = useCallback(() => setIsStatsOpen(true), []);
-  const closeStats = useCallback(() => setIsStatsOpen(false), []);
+  // Stats from Zustand store
+  const statsData = useStatsStore((s) => s.stats);
+  const recordGame = useStatsStore((s) => s.recordGame);
+  const resetStats = useStatsStore((s) => s.resetStats);
+
+  // UI state from Zustand store
+  const isStatsOpen = useUIStore((s) => s.isStatsOpen);
+  const openStats = useUIStore((s) => s.openStats);
+  const closeStats = useUIStore((s) => s.closeStats);
+
+  // Calculate derived stats
+  const winPercentage =
+    statsData.gamesPlayed > 0
+      ? Math.round((statsData.gamesWon / statsData.gamesPlayed) * 100)
+      : 0;
+  const maxDistributionValue = Math.max(...statsData.guessDistribution, 1);
+
+  const stats: StatsReturn = {
+    stats: statsData,
+    winPercentage,
+    recordGame,
+    resetStats,
+    maxDistributionValue,
+  };
 
   const value: GameContextValue = {
     // Game mode
     gameMode: session.gameMode,
 
     // Multiplayer status shortcuts for easy access
-    isHost: session.multiplayer.isHost,
-    isViewer: session.multiplayer.isViewer,
-    partnerConnected: session.multiplayer.partnerConnected,
-    sessionCode: session.multiplayer.sessionCode,
-    sessionPin: session.multiplayer.sessionPin,
-    connectionStatus: session.multiplayer.connectionStatus,
+    isHost: session.isHost,
+    isViewer: session.isViewer,
+    partnerConnected: session.partnerConnected,
+    sessionCode: session.sessionCode,
+    sessionPin: session.sessionPin,
+    connectionStatus: session.connectionStatus as ConnectionStatus,
 
     // Statistics
     stats,
