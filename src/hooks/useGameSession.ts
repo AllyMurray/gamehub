@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { WORDS } from '../data/words';
 import {
   useGameStore,
@@ -171,13 +171,21 @@ export const useGameSession = (): UseGameSessionReturn => {
     }
   }, [isHost, partnerConnected, sendGameState, getGameState]);
 
+  // Ref to store the latest sync callbacks and conditions
+  // This allows the effect to use up-to-date values without re-triggering on callback changes
+  const syncStateRef = useRef({ isHost, partnerConnected, sendGameState, getGameState });
+
+  useLayoutEffect(() => {
+    syncStateRef.current = { isHost, partnerConnected, sendGameState, getGameState };
+  });
+
   // Send game state updates when game state changes (host)
   useEffect(() => {
-    if (isHost && partnerConnected) {
-      sendGameState(getGameState());
+    const { isHost: host, partnerConnected: connected, sendGameState: send, getGameState: get } =
+      syncStateRef.current;
+    if (host && connected) {
+      send(get());
     }
-    // Only trigger on actual game state changes, not on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [solution, guesses, currentGuess, gameOver, won, message]);
 
   // Handle key press (both host and viewer)
