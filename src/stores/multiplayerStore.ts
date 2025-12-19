@@ -77,8 +77,46 @@ interface MultiplayerState {
   isConnected: boolean;
 }
 
-// Internal state not exposed in the store interface
-// These are managed imperatively for PeerJS connection handling
+/**
+ * ARCHITECTURE NOTE: Module-Level Mutable State Pattern
+ *
+ * This file uses module-level mutable state (`internal`) outside of the Zustand store
+ * for managing WebRTC/PeerJS connections. This is an intentional architectural decision:
+ *
+ * WHY THIS PATTERN IS USED:
+ * 1. PeerJS objects (Peer, DataConnection) are stateful class instances that cannot be
+ *    serialized or cloned. Zustand stores work best with plain, serializable data.
+ *
+ * 2. WebRTC connections require imperative lifecycle management (event handlers, cleanup)
+ *    that doesn't fit the reactive state model. The connection objects themselves aren't
+ *    state - they're infrastructure that produces state updates.
+ *
+ * 3. Callback registration (onGameStateReceived, onSuggestionResponse) needs to persist
+ *    across re-renders without triggering state updates when registered.
+ *
+ * 4. Timeouts, intervals, and pending message tracking are implementation details that
+ *    shouldn't cause React re-renders or be part of the observable store state.
+ *
+ * HOW IT WORKS:
+ * - `internal` holds connection infrastructure and cleanup handlers
+ * - The Zustand store (`useMultiplayerStore`) holds UI-relevant state (connectionStatus,
+ *   partnerConnected, errorMessage, etc.) that components subscribe to
+ * - Store actions read/write `internal` imperatively, then update store state to
+ *   trigger UI updates
+ *
+ * TRADEOFFS:
+ * - The store is not fully self-contained; `internal` creates implicit module state
+ * - Testing requires resetting both the store AND the internal state
+ * - Hot module replacement may not fully reset connection state
+ *
+ * ALTERNATIVES CONSIDERED:
+ * - Storing Peer/DataConnection in Zustand: Causes issues with serialization and
+ *   unnecessary re-renders on internal PeerJS state changes
+ * - Using React refs in a hook: Would require prop drilling connection state or
+ *   context, and wouldn't work with external store access via getState()
+ * - Separate connection manager class: Would add complexity without clear benefit
+ *   for this use case
+ */
 interface InternalState {
   peer: Peer | null;
   connection: DataConnection | null;
