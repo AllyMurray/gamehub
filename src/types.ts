@@ -109,14 +109,90 @@ const normalizeDashes = (input: string): string => {
 };
 
 /**
+ * Normalize look-alike Unicode characters to their ASCII equivalents.
+ * This handles cases where visually identical characters from different scripts
+ * (Cyrillic, Greek, fullwidth) are accidentally used instead of ASCII characters.
+ * Common when copying text across different keyboard layouts or platforms.
+ */
+const normalizeLookalikeCharacters = (input: string): string => {
+  // Map of look-alike Unicode characters to their ASCII equivalents
+  // Includes: Cyrillic, Greek, and fullwidth variants
+  const lookalikeMap: Record<string, string> = {
+    // Cyrillic uppercase that look like Latin
+    '\u0410': 'A', // А -> A
+    '\u0412': 'B', // В -> B
+    '\u0421': 'C', // С -> C
+    '\u0415': 'E', // Е -> E
+    '\u041D': 'H', // Н -> H
+    '\u041A': 'K', // К -> K
+    '\u041C': 'M', // М -> M
+    '\u041E': 'O', // О -> O (note: O is excluded from SESSION_CODE_CHARS, but normalize anyway)
+    '\u0420': 'P', // Р -> P
+    '\u0422': 'T', // Т -> T
+    '\u0425': 'X', // Х -> X
+    '\u0423': 'Y', // У -> Y
+    // Cyrillic lowercase that look like Latin
+    '\u0430': 'a', // а -> a
+    '\u0435': 'e', // е -> e
+    '\u043E': 'o', // о -> o
+    '\u0440': 'p', // р -> p
+    '\u0441': 'c', // с -> c
+    '\u0445': 'x', // х -> x
+    '\u0443': 'y', // у -> y
+    // Greek uppercase that look like Latin
+    '\u0391': 'A', // Α -> A
+    '\u0392': 'B', // Β -> B
+    '\u0395': 'E', // Ε -> E
+    '\u0397': 'H', // Η -> H
+    '\u0399': 'I', // Ι -> I (note: I is excluded from SESSION_CODE_CHARS)
+    '\u039A': 'K', // Κ -> K
+    '\u039C': 'M', // Μ -> M
+    '\u039D': 'N', // Ν -> N
+    '\u039F': 'O', // Ο -> O
+    '\u03A1': 'P', // Ρ -> P
+    '\u03A4': 'T', // Τ -> T
+    '\u03A7': 'X', // Χ -> X
+    '\u03A5': 'Y', // Υ -> Y
+    '\u0396': 'Z', // Ζ -> Z
+    // Greek lowercase that look like Latin
+    '\u03BF': 'o', // ο -> o
+    // Fullwidth uppercase letters (A-Z: U+FF21 to U+FF3A)
+    '\uFF21': 'A', '\uFF22': 'B', '\uFF23': 'C', '\uFF24': 'D', '\uFF25': 'E',
+    '\uFF26': 'F', '\uFF27': 'G', '\uFF28': 'H', '\uFF29': 'I', '\uFF2A': 'J',
+    '\uFF2B': 'K', '\uFF2C': 'L', '\uFF2D': 'M', '\uFF2E': 'N', '\uFF2F': 'O',
+    '\uFF30': 'P', '\uFF31': 'Q', '\uFF32': 'R', '\uFF33': 'S', '\uFF34': 'T',
+    '\uFF35': 'U', '\uFF36': 'V', '\uFF37': 'W', '\uFF38': 'X', '\uFF39': 'Y',
+    '\uFF3A': 'Z',
+    // Fullwidth lowercase letters (a-z: U+FF41 to U+FF5A)
+    '\uFF41': 'a', '\uFF42': 'b', '\uFF43': 'c', '\uFF44': 'd', '\uFF45': 'e',
+    '\uFF46': 'f', '\uFF47': 'g', '\uFF48': 'h', '\uFF49': 'i', '\uFF4A': 'j',
+    '\uFF4B': 'k', '\uFF4C': 'l', '\uFF4D': 'm', '\uFF4E': 'n', '\uFF4F': 'o',
+    '\uFF50': 'p', '\uFF51': 'q', '\uFF52': 'r', '\uFF53': 's', '\uFF54': 't',
+    '\uFF55': 'u', '\uFF56': 'v', '\uFF57': 'w', '\uFF58': 'x', '\uFF59': 'y',
+    '\uFF5A': 'z',
+    // Fullwidth digits (0-9: U+FF10 to U+FF19)
+    '\uFF10': '0', '\uFF11': '1', '\uFF12': '2', '\uFF13': '3', '\uFF14': '4',
+    '\uFF15': '5', '\uFF16': '6', '\uFF17': '7', '\uFF18': '8', '\uFF19': '9',
+  };
+
+  return input
+    .split('')
+    .map((char) => lookalikeMap[char] ?? char)
+    .join('');
+};
+
+/**
  * Sanitize a session code input by removing invalid characters.
  * Handles the full format: "{readable}-{secret}"
  * - Readable part: uppercase letters from SESSION_CODE_CHARS
  * - Secret part: lowercase hex characters
  */
 export const sanitizeSessionCode = (input: string): string => {
-  // First, normalize any dash-like characters to standard hyphen
-  const normalizedInput = normalizeDashes(input);
+  // First, normalize any look-alike Unicode characters to ASCII equivalents
+  // This handles Cyrillic, Greek, and fullwidth characters that look identical
+  const normalizedLookalikes = normalizeLookalikeCharacters(input);
+  // Then normalize any dash-like characters to standard hyphen
+  const normalizedInput = normalizeDashes(normalizedLookalikes);
   const separator = GAME_CONFIG.SESSION_CODE_SEPARATOR;
   const separatorIndex = normalizedInput.indexOf(separator);
 

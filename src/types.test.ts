@@ -82,6 +82,53 @@ describe('Session Code Functions', () => {
         expect(sanitizeSessionCode('ABCDEF\uFF0Da3f2b1')).toBe('ABCDEF-a3f2b1');
       });
     });
+
+    describe('look-alike character normalization', () => {
+      it('should normalize Cyrillic uppercase letters to Latin', () => {
+        // А (U+0410) -> A, С (U+0421) -> C, Е (U+0415) -> E
+        expect(sanitizeSessionCode('\u0410\u0421\u0415DEF-a3f2b1')).toBe('ACEDEF-a3f2b1');
+      });
+
+      it('should normalize Cyrillic lowercase letters to Latin in secret part', () => {
+        // а (U+0430) -> a, с (U+0441) -> c, е (U+0435) -> e
+        expect(sanitizeSessionCode('ABCDEF-\u0430\u0441\u0435def')).toBe('ABCDEF-acedef');
+      });
+
+      it('should normalize Greek uppercase letters to Latin', () => {
+        // Α (U+0391) -> A, Β (U+0392) -> B, Ε (U+0395) -> E
+        expect(sanitizeSessionCode('\u0391\u0392\u0395DEF-a3f2b1')).toBe('ABEDEF-a3f2b1');
+      });
+
+      it('should normalize fullwidth uppercase letters to ASCII', () => {
+        // Ａ (U+FF21) -> A, Ｂ (U+FF22) -> B, Ｃ (U+FF23) -> C
+        expect(sanitizeSessionCode('\uFF21\uFF22\uFF23DEF-a3f2b1')).toBe('ABCDEF-a3f2b1');
+      });
+
+      it('should normalize fullwidth lowercase letters to ASCII in secret part', () => {
+        // ａ (U+FF41) -> a, ｂ (U+FF42) -> b, ｃ (U+FF43) -> c
+        expect(sanitizeSessionCode('ABCDEF-\uFF41\uFF42\uFF43def')).toBe('ABCDEF-abcdef');
+      });
+
+      it('should normalize fullwidth digits to ASCII in secret part', () => {
+        // ３ (U+FF13) -> 3, ２ (U+FF12) -> 2
+        expect(sanitizeSessionCode('ABCDEF-a\uFF13f\uFF12b1')).toBe('ABCDEF-a3f2b1');
+      });
+
+      it('should handle mixed Cyrillic and Latin characters', () => {
+        // Mix of Cyrillic А (U+0410), В (U+0412) with Latin CDEF
+        expect(sanitizeSessionCode('\u0410\u0412CDEF-a3f2b1')).toBe('ABCDEF-a3f2b1');
+      });
+
+      it('should handle fully Cyrillic readable part that looks like Latin', () => {
+        // АВСDЕF with А, В, С, Е as Cyrillic
+        expect(sanitizeSessionCode('\u0410\u0412\u0421D\u0415F-a3f2b1')).toBe('ABCDEF-a3f2b1');
+      });
+
+      it('should normalize look-alikes combined with dash normalization', () => {
+        // Cyrillic А (U+0410) + en-dash (U+2013) + Cyrillic а (U+0430)
+        expect(sanitizeSessionCode('\u0410BCDEF\u2013\u0430bcdef')).toBe('ABCDEF-abcdef');
+      });
+    });
   });
 
   describe('isValidSessionCode', () => {
