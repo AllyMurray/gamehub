@@ -95,18 +95,32 @@ export const createFullSessionCode = (readable: string, secret: string): string 
 };
 
 /**
+ * Normalize various dash-like Unicode characters to the standard hyphen-minus.
+ * This handles cases where apps (like WhatsApp) or keyboards auto-substitute
+ * the hyphen with visually similar but different Unicode characters.
+ */
+const normalizeDashes = (input: string): string => {
+  // Common dash-like characters that might be substituted:
+  // U+2010 HYPHEN, U+2011 NON-BREAKING HYPHEN, U+2012 FIGURE DASH,
+  // U+2013 EN DASH, U+2014 EM DASH, U+2212 MINUS SIGN
+  return input.replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, '-');
+};
+
+/**
  * Sanitize a session code input by removing invalid characters.
  * Handles the full format: "{readable}-{secret}"
  * - Readable part: uppercase letters from SESSION_CODE_CHARS
  * - Secret part: lowercase hex characters
  */
 export const sanitizeSessionCode = (input: string): string => {
+  // First, normalize any dash-like characters to standard hyphen
+  const normalizedInput = normalizeDashes(input);
   const separator = GAME_CONFIG.SESSION_CODE_SEPARATOR;
-  const separatorIndex = input.indexOf(separator);
+  const separatorIndex = normalizedInput.indexOf(separator);
 
   if (separatorIndex === -1) {
     // No separator yet - sanitize as readable part only
-    return input
+    return normalizedInput
       .toUpperCase()
       .split('')
       .filter((char) => GAME_CONFIG.SESSION_CODE_CHARS.includes(char))
@@ -115,8 +129,8 @@ export const sanitizeSessionCode = (input: string): string => {
   }
 
   // Has separator - sanitize both parts
-  const readablePart = input.slice(0, separatorIndex);
-  const secretPart = input.slice(separatorIndex + 1);
+  const readablePart = normalizedInput.slice(0, separatorIndex);
+  const secretPart = normalizedInput.slice(separatorIndex + 1);
 
   const sanitizedReadable = readablePart
     .toUpperCase()
