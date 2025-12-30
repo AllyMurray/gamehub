@@ -100,10 +100,12 @@ export const createFullSessionCode = (readable: string, secret: string): string 
  * the hyphen with visually similar but different Unicode characters.
  */
 const normalizeDashes = (input: string): string => {
-  // Common dash-like characters that might be substituted:
+  // Comprehensive list of dash-like characters that might be substituted:
   // U+2010 HYPHEN, U+2011 NON-BREAKING HYPHEN, U+2012 FIGURE DASH,
-  // U+2013 EN DASH, U+2014 EM DASH, U+2212 MINUS SIGN
-  return input.replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, '-');
+  // U+2013 EN DASH, U+2014 EM DASH, U+2015 HORIZONTAL BAR,
+  // U+2212 MINUS SIGN, U+FE58 SMALL EM DASH, U+FE63 SMALL HYPHEN-MINUS,
+  // U+FF0D FULLWIDTH HYPHEN-MINUS (common in Asian text input)
+  return input.replace(/[\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-');
 };
 
 /**
