@@ -65,6 +65,22 @@ describe('Session Code Functions', () => {
       it('should normalize hyphen (U+2010) to hyphen-minus', () => {
         expect(sanitizeSessionCode('ABCDEF\u2010a3f2b1')).toBe('ABCDEF-a3f2b1');
       });
+
+      it('should normalize horizontal bar (U+2015) to hyphen-minus', () => {
+        expect(sanitizeSessionCode('ABCDEF\u2015a3f2b1')).toBe('ABCDEF-a3f2b1');
+      });
+
+      it('should normalize small em dash (U+FE58) to hyphen-minus', () => {
+        expect(sanitizeSessionCode('ABCDEF\uFE58a3f2b1')).toBe('ABCDEF-a3f2b1');
+      });
+
+      it('should normalize small hyphen-minus (U+FE63) to hyphen-minus', () => {
+        expect(sanitizeSessionCode('ABCDEF\uFE63a3f2b1')).toBe('ABCDEF-a3f2b1');
+      });
+
+      it('should normalize fullwidth hyphen-minus (U+FF0D) to hyphen-minus', () => {
+        expect(sanitizeSessionCode('ABCDEF\uFF0Da3f2b1')).toBe('ABCDEF-a3f2b1');
+      });
     });
   });
 
