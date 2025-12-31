@@ -108,6 +108,7 @@ export const useGameSession = (): UseGameSessionReturn => {
   const acceptSuggestion = useMultiplayerStore((s) => s.acceptSuggestion);
   const rejectSuggestion = useMultiplayerStore((s) => s.rejectSuggestion);
   const restoreHostConnection = useMultiplayerStore((s) => s.restoreHostConnection);
+  const restoreViewerConnection = useMultiplayerStore((s) => s.restoreViewerConnection);
 
   // UI store
   const gameMode = useUIStore((s) => s.gameMode);
@@ -154,6 +155,38 @@ export const useGameSession = (): UseGameSessionReturn => {
       window.removeEventListener('pageshow', handlePageShow);
     };
   }, [isHost, restoreHostConnection]);
+
+  // Handle page visibility changes for viewer connection restoration
+  // Similar to host, viewers can lose their WebRTC connection when backgrounded.
+  // This effect restores the viewer connection when the page becomes visible again,
+  // including after max reconnection attempts were reached.
+  useEffect(() => {
+    if (!isViewer) return;
+
+    const handleVisibilityChange = (): void => {
+      if (document.visibilityState === 'visible') {
+        // Page is now visible - check and restore connection if needed
+        restoreViewerConnection();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Also handle pageshow event for Safari's bfcache restoration
+    const handlePageShow = (event: PageTransitionEvent): void => {
+      if (event.persisted) {
+        // Page was restored from bfcache - restore connection
+        restoreViewerConnection();
+      }
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [isViewer, restoreViewerConnection]);
 
   // Handle viewer guess changes - validate and send to host as suggestion
   const handleViewerGuessChange = useCallback(

@@ -62,6 +62,7 @@ interface MultiplayerState {
   acceptSuggestion: () => string | null;
   rejectSuggestion: () => void;
   restoreHostConnection: () => void;
+  restoreViewerConnection: () => void;
 
   // Computed
   isHost: boolean;
@@ -914,6 +915,53 @@ export const useMultiplayerStore = create<MultiplayerState>()(
               errorMessage: 'Failed to restore connection. Please try again.',
             });
           });
+      },
+
+      restoreViewerConnection: () => {
+        const { role, connectionStatus } = get();
+
+        // Only restore if we're a viewer with a saved session code
+        if (role !== 'viewer' || !internal.lastSessionCode) {
+          return;
+        }
+
+        // Don't restore if already reconnecting or if connection is healthy
+        if (internal.isReconnecting) {
+          return;
+        }
+
+        // Check if connection is still valid
+        const connectionIsValid =
+          internal.connection &&
+          internal.connection.open &&
+          internal.peer &&
+          !internal.peer.destroyed &&
+          internal.peer.open;
+
+        if (connectionIsValid) {
+          // Connection is still valid, just refresh heartbeat
+          if (internal.connection) {
+            try {
+              internal.connection.send({ type: 'ping', timestamp: Date.now() } as PeerMessage);
+            } catch {
+              // If ping fails, connection is dead - trigger reconnection below
+            }
+          }
+          return;
+        }
+
+        // Connection is dead - if we're in a failed state, reset and try again
+        // This handles the case where max reconnection attempts were reached
+        // but the user has now returned to the app
+        if (connectionStatus === 'error' || !internal.peer?.open) {
+          // Reset reconnection attempts since this is a fresh attempt from visibility change
+          internal.reconnectAttempts = 0;
+          internal.isReconnecting = false;
+          clearReconnectTimeout(internal);
+
+          // Attempt to reconnect with saved session code and PIN
+          attemptConnection(internal.lastSessionCode, true, internal.viewerPinInternal);
+        }
       },
     };
   })
