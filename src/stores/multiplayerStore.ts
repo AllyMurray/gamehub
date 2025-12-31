@@ -61,6 +61,7 @@ interface MultiplayerState {
   clearSuggestion: () => void;
   acceptSuggestion: () => string | null;
   rejectSuggestion: () => void;
+  restoreHostConnection: () => void;
 
   // Computed
   isHost: boolean;
@@ -719,6 +720,200 @@ export const useMultiplayerStore = create<MultiplayerState>()(
           );
           set({ pendingSuggestion: null });
         }
+      },
+
+      restoreHostConnection: () => {
+        const { role, sessionCode } = get();
+
+        // Only restore if we're a host with a valid session code
+        if (role !== 'host' || !sessionCode) {
+          return;
+        }
+
+        // Check if peer is still open and connected to the signaling server
+        // On iOS Safari, when the tab is backgrounded, the peer connection is severed
+        // but the peer object may still exist
+        const peerIsValid = internal.peer && !internal.peer.destroyed && internal.peer.open;
+
+        if (peerIsValid) {
+          // Peer is still valid, no need to restore
+          return;
+        }
+
+        // Peer is disconnected or destroyed - recreate it with the same session code
+        const peerId = `wordle-${sessionCode}`;
+
+        // Clean up the old peer if it exists
+        try {
+          if (internal.peer) {
+            internal.peer.destroy();
+            internal.peer = null;
+          }
+        } catch (err) {
+          console.warn('Error destroying old peer during restore:', err);
+          internal.peer = null;
+        }
+
+        set({ connectionStatus: 'connecting' });
+
+        loadPeerJS()
+          .then((Peer) => {
+            let peer: InstanceType<typeof Peer>;
+            try {
+              peer = new Peer(peerId, { debug: GAME_CONFIG.PEER_DEBUG_LEVEL });
+            } catch (err) {
+              console.error('Error creating peer during restore:', err);
+              set({
+                connectionStatus: 'error',
+                errorMessage: 'Failed to restore connection. Please try again.',
+              });
+              return;
+            }
+
+            peer.on('open', () => {
+              set({ connectionStatus: 'connected' });
+            });
+
+            peer.on('connection', (conn: DataConnection) => {
+              let connectionAuthenticated = false;
+
+              if (internal.connection) {
+                internal.connection.close();
+              }
+              internal.connection = conn;
+              set({ pendingSuggestion: null });
+
+              conn.on('open', () => {
+                if (internal.sessionPinInternal === '') {
+                  connectionAuthenticated = true;
+                  set({ partnerConnected: true });
+                }
+              });
+
+              conn.on('data', (data) => {
+                const dataWithId = data as { _messageId?: string };
+                const messageId = dataWithId._messageId;
+
+                const validationResult = validatePeerMessage(data);
+                if (!validationResult.success) {
+                  console.warn('Invalid peer message received:', validationResult.error);
+                  return;
+                }
+                const message = validationResult.message;
+
+                if (message.type === 'ack') {
+                  handleAck(internal, message.messageId);
+                  return;
+                }
+
+                if (message.type === 'auth-request') {
+                  const peerId = conn.peer;
+
+                  const authRateCheck = checkAuthRateLimit(rateLimitState, peerId);
+                  if (!authRateCheck.allowed) {
+                    const retrySeconds = Math.ceil(authRateCheck.retryAfterMs / 1000);
+                    try {
+                      conn.send({
+                        type: 'auth-failure',
+                        reason: `Too many failed attempts. Try again in ${retrySeconds} seconds.`,
+                      } as PeerMessage);
+                      setTimeout(() => conn.close(), 100);
+                    } catch (err) {
+                      console.warn('Error sending auth failure:', err);
+                    }
+                    return;
+                  }
+
+                  if (internal.sessionPinInternal === '' || message.pin === internal.sessionPinInternal) {
+                    clearAuthRateLimit(rateLimitState, peerId);
+                    try {
+                      conn.send({ type: 'auth-success' } as PeerMessage);
+                      connectionAuthenticated = true;
+                      set({ partnerConnected: true });
+                    } catch (err) {
+                      console.warn('Error sending auth success:', err);
+                    }
+                  } else {
+                    const isBlocked = recordFailedAuthAttempt(rateLimitState, peerId);
+                    const reason = isBlocked
+                      ? 'Too many failed attempts. Please try again later.'
+                      : 'Incorrect PIN';
+                    try {
+                      conn.send({ type: 'auth-failure', reason } as PeerMessage);
+                      setTimeout(() => conn.close(), 100);
+                    } catch (err) {
+                      console.warn('Error sending auth failure:', err);
+                    }
+                  }
+                  return;
+                }
+
+                if (internal.sessionPinInternal !== '' && !connectionAuthenticated) {
+                  console.warn('Received message from unauthenticated connection');
+                  return;
+                }
+
+                if (message.type === 'ping') {
+                  try {
+                    conn.send({ type: 'pong', timestamp: message.timestamp } as PeerMessage);
+                  } catch (err) {
+                    console.warn('Error sending pong response:', err);
+                  }
+                  return;
+                }
+
+                if (message.type === 'pong') {
+                  handleHeartbeat(internal);
+                  return;
+                }
+
+                if (messageId && (message.type === 'suggest-word' || message.type === 'request-state')) {
+                  sendAck(conn, messageId);
+                }
+
+                if (message.type === 'suggest-word') {
+                  set({ pendingSuggestion: { word: message.word } });
+                } else if (message.type === 'clear-suggestion') {
+                  set({ pendingSuggestion: null });
+                }
+              });
+
+              conn.on('close', () => {
+                if (internal.connection === conn) {
+                  set({ partnerConnected: false, pendingSuggestion: null });
+                }
+              });
+
+              conn.on('error', () => {
+                if (internal.connection === conn) {
+                  set({ partnerConnected: false, pendingSuggestion: null });
+                }
+              });
+            });
+
+            peer.on('error', (err) => {
+              console.error('Peer error during restore:', err);
+              if (err.type === 'unavailable-id') {
+                // Session code is already in use (somehow), retry after delay
+                set({ connectionStatus: 'disconnected' });
+                setTimeout(() => get().restoreHostConnection(), GAME_CONFIG.HOST_RETRY_DELAY_MS);
+              } else {
+                set({
+                  connectionStatus: 'error',
+                  errorMessage: 'Connection error. Please try again.',
+                });
+              }
+            });
+
+            internal.peer = peer;
+          })
+          .catch((err) => {
+            console.error('Failed to load PeerJS during restore:', err);
+            set({
+              connectionStatus: 'error',
+              errorMessage: 'Failed to restore connection. Please try again.',
+            });
+          });
       },
     };
   })
