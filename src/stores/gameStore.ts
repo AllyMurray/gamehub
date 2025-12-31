@@ -7,33 +7,6 @@ import { GAME_CONFIG } from '../types';
 const WORD_LENGTH = GAME_CONFIG.WORD_LENGTH;
 const MAX_GUESSES = GAME_CONFIG.MAX_GUESSES;
 
-// Module-level timeout tracking for cleanup
-let shakeTimeoutId: ReturnType<typeof setTimeout> | null = null;
-
-/**
- * Clears any existing shake timeout and sets a new one.
- * This prevents memory leaks and ensures only one timeout is active at a time.
- */
-const setShakeTimeout = (callback: () => void, duration: number): void => {
-  if (shakeTimeoutId !== null) {
-    clearTimeout(shakeTimeoutId);
-  }
-  shakeTimeoutId = setTimeout(() => {
-    shakeTimeoutId = null;
-    callback();
-  }, duration);
-};
-
-/**
- * Clears any pending shake timeout. Call this when cleaning up the store.
- */
-export const clearShakeTimeout = (): void => {
-  if (shakeTimeoutId !== null) {
-    clearTimeout(shakeTimeoutId);
-    shakeTimeoutId = null;
-  }
-};
-
 interface GameStoreState {
   // Core game state
   solution: string;
@@ -105,6 +78,26 @@ const isValidWord = (word: string): boolean => {
   return WORDS.includes(word.toLowerCase());
 };
 
+// Timer ID for shake/message cleanup - tracked at module level to allow cancellation
+let shakeTimerId: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Clears any pending shake timer and sets a new one.
+ * This prevents memory leaks from orphaned timers and ensures
+ * only one timer is active at a time.
+ */
+const scheduleShakeReset = (
+  set: (state: Partial<Pick<GameStoreState, 'shake' | 'message'>>) => void
+): void => {
+  if (shakeTimerId !== null) {
+    clearTimeout(shakeTimerId);
+  }
+  shakeTimerId = setTimeout(() => {
+    set({ shake: false, message: '' });
+    shakeTimerId = null;
+  }, GAME_CONFIG.SHAKE_DURATION_MS);
+};
+
 /**
  * Zustand store for core game state.
  *
@@ -142,13 +135,13 @@ export const useGameStore = create<GameStoreState>()(
       if (gameOver || isViewer) return false;
       if (currentGuess.length !== WORD_LENGTH) {
         set({ message: 'Not enough letters', shake: true });
-        setShakeTimeout(() => set({ shake: false, message: '' }), GAME_CONFIG.SHAKE_DURATION_MS);
+        scheduleShakeReset(set);
         return false;
       }
 
       if (!isValidWord(currentGuess)) {
         set({ message: 'Not in word list', shake: true });
-        setShakeTimeout(() => set({ shake: false, message: '' }), GAME_CONFIG.SHAKE_DURATION_MS);
+        scheduleShakeReset(set);
         return false;
       }
 
@@ -198,8 +191,11 @@ export const useGameStore = create<GameStoreState>()(
 
     // Start a new game
     newGame: () => {
-      // Clear any pending shake timeout to prevent stale state updates
-      clearShakeTimeout();
+      // Clear any pending shake timer
+      if (shakeTimerId !== null) {
+        clearTimeout(shakeTimerId);
+        shakeTimerId = null;
+      }
       set({
         solution: getRandomWord(),
         guesses: [],
