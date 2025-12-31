@@ -107,6 +107,7 @@ export const useGameSession = (): UseGameSessionReturn => {
   const clearSuggestion = useMultiplayerStore((s) => s.clearSuggestion);
   const acceptSuggestion = useMultiplayerStore((s) => s.acceptSuggestion);
   const rejectSuggestion = useMultiplayerStore((s) => s.rejectSuggestion);
+  const restoreHostConnection = useMultiplayerStore((s) => s.restoreHostConnection);
 
   // UI store
   const gameMode = useUIStore((s) => s.gameMode);
@@ -121,6 +122,38 @@ export const useGameSession = (): UseGameSessionReturn => {
   useEffect(() => {
     setIsViewer(isViewer);
   }, [isViewer, setIsViewer]);
+
+  // Handle page visibility changes for host connection restoration
+  // On iOS Safari, the WebRTC connection is suspended when the app is backgrounded
+  // (e.g., when switching to WhatsApp to share the game link).
+  // This effect restores the host connection when the page becomes visible again.
+  useEffect(() => {
+    if (!isHost) return;
+
+    const handleVisibilityChange = (): void => {
+      if (document.visibilityState === 'visible') {
+        // Page is now visible - check and restore connection if needed
+        restoreHostConnection();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Also handle pageshow event for Safari's bfcache restoration
+    const handlePageShow = (event: PageTransitionEvent): void => {
+      if (event.persisted) {
+        // Page was restored from bfcache - restore connection
+        restoreHostConnection();
+      }
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [isHost, restoreHostConnection]);
 
   // Handle viewer guess changes - validate and send to host as suggestion
   const handleViewerGuessChange = useCallback(
