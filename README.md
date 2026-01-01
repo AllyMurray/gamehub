@@ -381,6 +381,8 @@ All messages are validated at runtime using Zod schemas:
 
 ### Connection Resilience
 
+The multiplayer system is designed to handle connection interruptions gracefully, including when users switch apps on mobile devices.
+
 ```mermaid
 stateDiagram-v2
     [*] --> disconnected
@@ -391,14 +393,41 @@ stateDiagram-v2
     connected --> reconnecting: Heartbeat timeout
     reconnecting --> connected: Reconnection successful
     reconnecting --> error: Max retries exceeded
-    error --> connecting: Retry
+    error --> connecting: Visibility restore / Retry
 ```
+
+**Automatic Reconnection:**
+
+| Feature | Host | Viewer |
+|---------|------|--------|
+| Visibility restoration | Yes | Yes |
+| bfcache restoration | Yes | Yes |
+| Heartbeat monitoring | N/A | Yes |
+| Auto-retry on connection drop | N/A | Yes |
+| Reset attempts on app return | Yes | Yes |
+
+**How It Works:**
+
+1. **Background Detection**: When users switch to another app (e.g., WhatsApp to share a link), WebRTC connections are suspended on mobile browsers
+2. **Visibility Events**: Both host and viewer listen for `visibilitychange` and `pageshow` events
+3. **Connection Restoration**: When the app becomes visible again:
+   - The connection state is checked
+   - If dead, reconnection is triggered immediately
+   - Reconnection attempt counter is reset (fresh start)
+4. **Heartbeat Monitoring** (Viewer only): Ping/pong messages every 5 seconds detect stale connections within 15 seconds
 
 **Retry Strategy:**
 - Initial delay: 1 second
-- Max delay: 16 seconds
+- Max delay: 16 seconds (capped)
 - Formula: `min(1000 * 2^attempt, 16000)`
-- Max attempts: 5
+- Max attempts: 5 per reconnection cycle
+- **Key**: Returning to the app resets attempts and triggers immediate reconnection
+
+**Mobile Scenarios:**
+- Switching to WhatsApp to share link → Returns to game → Auto-reconnects
+- Answering a phone call → Returns to game → Auto-reconnects
+- Locking phone briefly → Unlocks → Auto-reconnects
+- Long background period (connection fully dropped) → Returns → Fresh reconnection attempt
 
 ## Performance Optimizations
 

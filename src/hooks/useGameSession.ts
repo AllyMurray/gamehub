@@ -108,6 +108,7 @@ export const useGameSession = (): UseGameSessionReturn => {
   const acceptSuggestion = useMultiplayerStore((s) => s.acceptSuggestion);
   const rejectSuggestion = useMultiplayerStore((s) => s.rejectSuggestion);
   const restoreHostConnection = useMultiplayerStore((s) => s.restoreHostConnection);
+  const restoreViewerConnection = useMultiplayerStore((s) => s.restoreViewerConnection);
 
   // UI store
   const gameMode = useUIStore((s) => s.gameMode);
@@ -123,37 +124,35 @@ export const useGameSession = (): UseGameSessionReturn => {
     setIsViewer(isViewer);
   }, [isViewer, setIsViewer]);
 
-  // Handle page visibility changes for host connection restoration
-  // On iOS Safari, the WebRTC connection is suspended when the app is backgrounded
+  // Handle page visibility changes for connection restoration (host and viewer)
+  // On iOS Safari, WebRTC connections are suspended when the app is backgrounded
   // (e.g., when switching to WhatsApp to share the game link).
-  // This effect restores the host connection when the page becomes visible again.
+  // This effect restores the connection when the page becomes visible again.
   useEffect(() => {
-    if (!isHost) return;
+    if (!isHost && !isViewer) return;
+
+    const restoreConnection = isHost ? restoreHostConnection : restoreViewerConnection;
 
     const handleVisibilityChange = (): void => {
       if (document.visibilityState === 'visible') {
-        // Page is now visible - check and restore connection if needed
-        restoreHostConnection();
+        restoreConnection();
+      }
+    };
+
+    const handlePageShow = (event: PageTransitionEvent): void => {
+      if (event.persisted) {
+        restoreConnection();
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Also handle pageshow event for Safari's bfcache restoration
-    const handlePageShow = (event: PageTransitionEvent): void => {
-      if (event.persisted) {
-        // Page was restored from bfcache - restore connection
-        restoreHostConnection();
-      }
-    };
-
     window.addEventListener('pageshow', handlePageShow);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pageshow', handlePageShow);
     };
-  }, [isHost, restoreHostConnection]);
+  }, [isHost, isViewer, restoreHostConnection, restoreViewerConnection]);
 
   // Handle viewer guess changes - validate and send to host as suggestion
   const handleViewerGuessChange = useCallback(
