@@ -7,6 +7,7 @@ import { GameLayout } from '../../components/GameLayout/GameLayout';
 import Lobby from '../../components/Lobby';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { useMultiplayerStore, useStatsStore } from '../../stores';
+import { useMultiplayerReconnection } from '../../hooks/useMultiplayerReconnection';
 import { sanitizeSessionCode, isValidSessionCode } from '../../types';
 import type { GameMode } from '../../types';
 import './BoggleGame.css';
@@ -79,8 +80,6 @@ export default function BoggleGame() {
   const hostGame = useMultiplayerStore((s) => s.hostGame);
   const joinGame = useMultiplayerStore((s) => s.joinGame);
   const leaveSession = useMultiplayerStore((s) => s.leaveSession);
-  const restoreHostConnection = useMultiplayerStore((s) => s.restoreHostConnection);
-  const restoreViewerConnection = useMultiplayerStore((s) => s.restoreViewerConnection);
 
   // Stats
   const recordBoggleGame = useStatsStore((s) => s.recordBoggleGame);
@@ -127,21 +126,8 @@ export default function BoggleGame() {
     }
   }, [gameOver, localGameMode, isViewer, score, foundWords.length, recordBoggleGame]);
 
-  // Handle page visibility changes for connection restoration (iOS Safari backgrounding)
-  useEffect(() => {
-    if (!isHost && !isViewer) return;
-
-    const restoreConnection = isHost ? restoreHostConnection : restoreViewerConnection;
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        restoreConnection();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isHost, isViewer, restoreHostConnection, restoreViewerConnection]);
+  // Handle page visibility changes for connection restoration
+  useMultiplayerReconnection();
 
   const handleBack = useCallback(() => {
     stopTimer();
