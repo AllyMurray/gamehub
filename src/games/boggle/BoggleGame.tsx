@@ -60,6 +60,9 @@ export default function BoggleGame() {
   // Track game completion for stats
   const lastRecordedGameRef = useRef<string | null>(null);
 
+  // Track if timer has been started (to avoid false "time up" on initial load)
+  const timerHasStartedRef = useRef(false);
+
   const isHost = role === 'host';
   const isViewer = role === 'viewer';
 
@@ -67,14 +70,16 @@ export default function BoggleGame() {
   useEffect(() => {
     if (localGameMode && !board) {
       initGame().then(() => {
+        timerHasStartedRef.current = true;
         startTimer(GAME_DURATION);
       });
     }
   }, [localGameMode, board, initGame, startTimer]);
 
-  // End game when timer reaches zero
+  // End game when timer reaches zero (only if timer was actually started)
   useEffect(() => {
-    if (timeRemaining === 0 && !gameOver && !isLoading && localGameMode) {
+    if (timeRemaining === 0 && !gameOver && !isLoading && localGameMode && timerHasStartedRef.current) {
+      timerHasStartedRef.current = false;
       endGame();
     }
   }, [timeRemaining, gameOver, isLoading, localGameMode, endGame]);
@@ -116,6 +121,7 @@ export default function BoggleGame() {
 
   const handleNewGame = useCallback(() => {
     initGame().then(() => {
+      timerHasStartedRef.current = true;
       startTimer(GAME_DURATION);
     });
   }, [initGame, startTimer]);
