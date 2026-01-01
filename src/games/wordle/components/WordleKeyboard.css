@@ -1,0 +1,89 @@
+.wordle-keyboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+}
+
+.keyboard-key {
+  min-width: 43px;
+  height: 58px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-key-default);
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast);
+  flex: 1;
+  max-width: 43px;
+}
+
+.keyboard-key--wide {
+  min-width: 65px;
+  max-width: 65px;
+  font-size: 0.75rem;
+}
+
+.keyboard-key:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.keyboard-key:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.keyboard-key:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.keyboard-key--correct {
+  background: var(--color-correct);
+  color: white;
+}
+
+.keyboard-key--present {
+  background: var(--color-present);
+  color: white;
+}
+
+.keyboard-key--absent {
+  background: var(--color-absent);
+  color: white;
+}
+
+/* Responsive sizing */
+@media (max-width: 500px) {
+  .keyboard-key {
+    min-width: 32px;
+    max-width: 32px;
+    height: 50px;
+    font-size: 0.875rem;
+  }
+
+  .keyboard-key--wide {
+    min-width: 50px;
+    max-width: 50px;
+    font-size: 0.65rem;
+  }
+
+  .keyboard-row {
+    gap: 4px;
+  }
+}

@@ -1,0 +1,30 @@
+.timer {
+  font-size: var(--font-size-3xl);
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.timer--low {
+  color: var(--color-error);
+  animation: pulse 1s infinite;
+}
+
+.timer__display {
+  display: block;
+}
+
+.timer__warning {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: normal;
+  color: var(--color-error);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
