@@ -63,6 +63,12 @@ export default function BoggleGame() {
   // Track game completion for stats
   const lastRecordedGameRef = useRef<string | null>(null);
 
+  // Ref to track current game phase for use in subscriptions (avoids stale closures)
+  const gamePhaseRef = useRef(gamePhase);
+  useEffect(() => {
+    gamePhaseRef.current = gamePhase;
+  }, [gamePhase]);
+
   const isHost = role === 'host';
   const isViewer = role === 'viewer';
 
@@ -92,12 +98,19 @@ export default function BoggleGame() {
   }, [gamePhase, initGame, startTimer]);
 
   // Handle playing → gameOver transition when timer reaches zero
+  // Uses subscription pattern to avoid setState in effect body
   useEffect(() => {
-    if (gamePhase === 'playing' && timeRemaining === 0) {
-      setGamePhase('gameOver');
-      endGame();
-    }
-  }, [gamePhase, timeRemaining, endGame]);
+    const unsubscribe = useTimerStore.subscribe(
+      (state) => state.timeRemaining,
+      (timeRemaining) => {
+        if (gamePhaseRef.current === 'playing' && timeRemaining === 0) {
+          setGamePhase('gameOver');
+          endGame();
+        }
+      }
+    );
+    return unsubscribe;
+  }, [endGame]);
 
   // Record stats when game ends
   useEffect(() => {
