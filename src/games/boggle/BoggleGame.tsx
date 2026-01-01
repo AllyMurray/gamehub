@@ -68,12 +68,27 @@ export default function BoggleGame() {
 
   // Handle loading → playing transition
   useEffect(() => {
-    if (gamePhase === 'loading') {
-      initGame().then(() => {
-        setGamePhase('playing');
-        startTimer(GAME_DURATION);
+    if (gamePhase !== 'loading') return;
+
+    let cancelled = false;
+
+    initGame()
+      .then(() => {
+        if (!cancelled) {
+          setGamePhase('playing');
+          startTimer(GAME_DURATION);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          // On error, return to lobby
+          setGamePhase('lobby');
+        }
       });
-    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [gamePhase, initGame, startTimer]);
 
   // Handle playing → gameOver transition when timer reaches zero
