@@ -749,6 +749,9 @@ export const useMultiplayerStore = create<MultiplayerState>()(
 
         // Peer is disconnected or destroyed - recreate it with the same session code
         const gameId = currentGameId || internal.currentGameId || 'wordle';
+        if (!currentGameId && !internal.currentGameId) {
+          console.warn('restoreHostConnection: gameId not found in state, falling back to "wordle"');
+        }
         const peerId = `${gameId}-${sessionCode}`;
 
         // Clean up the old peer if it exists

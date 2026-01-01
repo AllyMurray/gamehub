@@ -8,35 +8,8 @@ import Stats from '../../components/Stats';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { useGameSession } from '../../hooks/useGameSession';
 import { useStatsStore, useUIStore } from '../../stores';
-import { sanitizeSessionCode, isValidSessionCode } from '../../types';
+import { getJoinCodeFromUrl, generateShareUrl, generateWhatsAppUrl } from '../../utils/shareUrl';
 import './WordleGame.css';
-
-// Get join code from URL query parameter
-const getJoinCodeFromUrl = (searchParams: URLSearchParams): string | null => {
-  const joinCode = searchParams.get('join');
-  if (joinCode) {
-    const sanitized = sanitizeSessionCode(joinCode);
-    if (isValidSessionCode(sanitized)) {
-      return sanitized;
-    }
-  }
-  return null;
-};
-
-// Generate a share URL with the session code
-const generateShareUrl = (sessionCode: string): string => {
-  const url = new URL(window.location.href);
-  url.search = '';
-  url.searchParams.set('join', sessionCode);
-  return url.toString();
-};
-
-// Generate WhatsApp share URL
-const generateWhatsAppUrl = (sessionCode: string): string => {
-  const shareUrl = generateShareUrl(sessionCode);
-  const message = `Join my Wordle game! ${shareUrl}`;
-  return `https://wa.me/?text=${encodeURIComponent(message)}`;
-};
 
 export default function WordleGame() {
   const navigate = useNavigate();
@@ -171,7 +144,7 @@ export default function WordleGame() {
   // Handle WhatsApp share
   const handleWhatsAppShare = useCallback((): void => {
     if (sessionCode) {
-      const whatsappUrl = generateWhatsAppUrl(sessionCode);
+      const whatsappUrl = generateWhatsAppUrl(sessionCode, 'Wordle');
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     }
   }, [sessionCode]);

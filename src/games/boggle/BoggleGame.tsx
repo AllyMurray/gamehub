@@ -8,38 +8,11 @@ import Lobby from '../../components/Lobby';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { useMultiplayerStore, useStatsStore } from '../../stores';
 import { useMultiplayerReconnection } from '../../hooks/useMultiplayerReconnection';
-import { sanitizeSessionCode, isValidSessionCode } from '../../types';
+import { getJoinCodeFromUrl, generateShareUrl, generateWhatsAppUrl } from '../../utils/shareUrl';
 import type { GameMode } from '../../types';
 import './BoggleGame.css';
 
 const GAME_DURATION = 180; // 3 minutes
-
-// Get join code from URL query parameter
-const getJoinCodeFromUrl = (searchParams: URLSearchParams): string | null => {
-  const joinCode = searchParams.get('join');
-  if (joinCode) {
-    const sanitized = sanitizeSessionCode(joinCode);
-    if (isValidSessionCode(sanitized)) {
-      return sanitized;
-    }
-  }
-  return null;
-};
-
-// Generate a share URL with the session code
-const generateShareUrl = (sessionCode: string): string => {
-  const url = new URL(window.location.href);
-  url.search = '';
-  url.searchParams.set('join', sessionCode);
-  return url.toString();
-};
-
-// Generate WhatsApp share URL
-const generateWhatsAppUrl = (sessionCode: string): string => {
-  const shareUrl = generateShareUrl(sessionCode);
-  const message = `Join my Boggle game! ${shareUrl}`;
-  return `https://wa.me/?text=${encodeURIComponent(message)}`;
-};
 
 export default function BoggleGame() {
   const navigate = useNavigate();
@@ -186,7 +159,7 @@ export default function BoggleGame() {
   // Handle WhatsApp share
   const handleWhatsAppShare = useCallback((): void => {
     if (sessionCode) {
-      const whatsappUrl = generateWhatsAppUrl(sessionCode);
+      const whatsappUrl = generateWhatsAppUrl(sessionCode, 'Boggle');
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     }
   }, [sessionCode]);
