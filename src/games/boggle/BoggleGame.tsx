@@ -14,12 +14,17 @@ import './BoggleGame.css';
 
 const GAME_DURATION = 180; // 3 minutes
 
+type GamePhase = 'lobby' | 'loading' | 'playing' | 'gameOver';
+
 export default function BoggleGame() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [copyFeedback, setCopyFeedback] = useState(false);
 
-  // Local game mode state (separate from global UI store for Boggle)
+  // Game phase state machine: lobby → loading → playing → gameOver
+  const [gamePhase, setGamePhase] = useState<GamePhase>('lobby');
+
+  // Track which mode (solo/multiplayer) for UI purposes
   const [localGameMode, setLocalGameMode] = useState<GameMode>(null);
 
   // Boggle store state
@@ -28,8 +33,6 @@ export default function BoggleGame() {
   const currentPath = useBoggleStore((s) => s.currentPath);
   const currentWord = useBoggleStore((s) => s.currentWord);
   const score = useBoggleStore((s) => s.score);
-  const gameOver = useBoggleStore((s) => s.gameOver);
-  const isLoading = useBoggleStore((s) => s.isLoading);
 
   const initGame = useBoggleStore((s) => s.initGame);
   const selectTile = useBoggleStore((s) => s.selectTile);
@@ -60,36 +63,34 @@ export default function BoggleGame() {
   // Track game completion for stats
   const lastRecordedGameRef = useRef<string | null>(null);
 
-  // Track if timer has been started (to avoid false "time up" on initial load)
-  const timerHasStartedRef = useRef(false);
-
   const isHost = role === 'host';
   const isViewer = role === 'viewer';
 
-  // Start game when entering a mode
+  // Handle loading → playing transition
   useEffect(() => {
-    if (localGameMode && !board) {
+    if (gamePhase === 'loading') {
       initGame().then(() => {
-        timerHasStartedRef.current = true;
+        setGamePhase('playing');
         startTimer(GAME_DURATION);
       });
     }
-  }, [localGameMode, board, initGame, startTimer]);
+  }, [gamePhase, initGame, startTimer]);
 
-  // End game when timer reaches zero (only if timer was actually started)
+  // Handle playing → gameOver transition when timer reaches zero
   useEffect(() => {
-    if (timeRemaining === 0 && !gameOver && !isLoading && localGameMode && timerHasStartedRef.current) {
-      timerHasStartedRef.current = false;
+    if (gamePhase === 'playing' && timeRemaining === 0) {
+      setGamePhase('gameOver');
       endGame();
     }
-  }, [timeRemaining, gameOver, isLoading, localGameMode, endGame]);
+  }, [gamePhase, timeRemaining, endGame]);
 
   // Record stats when game ends
   useEffect(() => {
-    const gameIdentifier = gameOver ? `${score}-${foundWords.length}` : null;
+    const isGameOver = gamePhase === 'gameOver';
+    const gameIdentifier = isGameOver ? `${score}-${foundWords.length}` : null;
 
     if (
-      gameOver &&
+      isGameOver &&
       localGameMode &&
       !isViewer &&
       gameIdentifier !== null &&
@@ -99,10 +100,10 @@ export default function BoggleGame() {
       recordBoggleGame(score, foundWords.length, localGameMode === 'solo' ? 'solo' : 'multiplayer');
     }
 
-    if (!gameOver && lastRecordedGameRef.current !== null) {
+    if (!isGameOver && lastRecordedGameRef.current !== null) {
       lastRecordedGameRef.current = null;
     }
-  }, [gameOver, localGameMode, isViewer, score, foundWords.length, recordBoggleGame]);
+  }, [gamePhase, localGameMode, isViewer, score, foundWords.length, recordBoggleGame]);
 
   // Handle page visibility changes for connection restoration
   useMultiplayerReconnection();
@@ -117,28 +118,28 @@ export default function BoggleGame() {
     resetGame();
     leaveSession();
     setLocalGameMode(null);
+    setGamePhase('lobby');
   }, [stopTimer, resetGame, leaveSession]);
 
   const handleNewGame = useCallback(() => {
-    initGame().then(() => {
-      timerHasStartedRef.current = true;
-      startTimer(GAME_DURATION);
-    });
-  }, [initGame, startTimer]);
+    setGamePhase('loading');
+  }, []);
 
   const handleSubmit = useCallback(() => {
     submitWord();
   }, [submitWord]);
 
-  // Game mode handlers
+  // Game mode handlers - all transition to 'loading' phase
   const handlePlaySolo = useCallback(() => {
     setLocalGameMode('solo');
+    setGamePhase('loading');
   }, []);
 
   const handleHost = useCallback(
     (pin?: string) => {
       hostGame('boggle', pin);
       setLocalGameMode('multiplayer');
+      setGamePhase('loading');
     },
     [hostGame]
   );
@@ -147,6 +148,7 @@ export default function BoggleGame() {
     (code: string, pin?: string) => {
       joinGame('boggle', code, pin);
       setLocalGameMode('multiplayer');
+      setGamePhase('loading');
     },
     [joinGame]
   );
@@ -173,8 +175,8 @@ export default function BoggleGame() {
   // Get initial join code from URL
   const initialJoinCode = getJoinCodeFromUrl(searchParams);
 
-  // Show lobby if no game mode selected
-  if (!localGameMode) {
+  // Render based on game phase
+  if (gamePhase === 'lobby') {
     return (
       <Lobby
         gameName="Boggle"
@@ -188,8 +190,7 @@ export default function BoggleGame() {
     );
   }
 
-  // Loading state
-  if (isLoading || !board) {
+  if (gamePhase === 'loading' || !board) {
     return (
       <GameLayout gameId="boggle" gameName="Boggle" onBack={handleBackToLobby}>
         <div className="boggle-game">
@@ -275,7 +276,7 @@ export default function BoggleGame() {
             currentWord={currentWord}
             onTileSelect={selectTile}
             onSubmit={handleSubmit}
-            disabled={gameOver}
+            disabled={gamePhase === 'gameOver'}
           />
 
           <div className="boggle-sidebar">
@@ -283,7 +284,7 @@ export default function BoggleGame() {
           </div>
         </div>
 
-        {gameOver && (
+        {gamePhase === 'gameOver' && (
           <div className="game-over-panel">
             <h2>Time's Up!</h2>
             <p>
