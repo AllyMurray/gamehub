@@ -1,0 +1,62 @@
+.word-list {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  max-height: 300px;
+  overflow-y: auto;
+  min-width: 200px;
+}
+
+.word-list--empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.word-list--empty .hint {
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-2);
+}
+
+.word-list__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.word-list__title {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.word-list__score {
+  font-weight: bold;
+  color: var(--color-correct);
+}
+
+.word-list__items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.word-list__item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+}
+
+.word-list__word {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.word-list__points {
+  color: var(--color-correct);
+  font-weight: bold;
+}

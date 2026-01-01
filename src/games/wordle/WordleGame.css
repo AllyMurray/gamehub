@@ -1,0 +1,55 @@
+.wordle-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.game-message {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--message-bg);
+  color: var(--message-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: bold;
+  z-index: var(--z-dropdown);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.game-message--won {
+  background: var(--color-correct);
+  color: white;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.play-again-btn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background: var(--color-correct);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.play-again-btn:hover {
+  background: var(--color-correct-hover);
+}

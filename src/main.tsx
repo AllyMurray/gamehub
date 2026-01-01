@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App'
+import { AppRouter } from './router'
 import ErrorBoundary from './components/ErrorBoundary'
 import { registerServiceWorker } from './registerServiceWorker'
 
@@ -13,7 +13,7 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <AppRouter />
     </ErrorBoundary>
   </StrictMode>,
 )

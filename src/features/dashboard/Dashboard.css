@@ -1,0 +1,124 @@
+.dashboard {
+  min-height: 100vh;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-8);
+}
+
+.dashboard-header h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.game-card {
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border-color: var(--color-correct);
+}
+
+.game-card:focus {
+  outline: 2px solid var(--color-correct);
+  outline-offset: 2px;
+}
+
+.game-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
+}
+
+.game-name {
+  font-size: var(--font-size-2xl);
+  font-weight: bold;
+  margin: 0 0 var(--space-2) 0;
+}
+
+.game-description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.multiplayer-badge {
+  margin-top: var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-correct);
+  color: white;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.dashboard-footer {
+  margin-top: var(--space-8);
+  text-align: center;
+}
+
+.footer-text {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .dashboard {
+    padding: var(--space-4);
+  }
+
+  .dashboard-header {
+    margin-bottom: var(--space-6);
+  }
+
+  .dashboard-header h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .game-grid {
+    gap: var(--space-4);
+  }
+
+  .game-card {
+    padding: var(--space-6);
+  }
+
+  .game-icon {
+    font-size: 3rem;
+  }
+}

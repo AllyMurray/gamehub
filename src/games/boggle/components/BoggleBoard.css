@@ -1,0 +1,92 @@
+.boggle-board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.current-word {
+  font-size: var(--font-size-2xl);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  min-height: 2rem;
+  padding: var(--space-1) var(--space-4);
+  background: var(--color-present);
+  color: white;
+  border-radius: var(--radius-sm);
+}
+
+.boggle-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: var(--space-2);
+  background: var(--color-border-primary);
+  border-radius: var(--radius-md);
+  touch-action: none;
+  user-select: none;
+}
+
+.boggle-board--selecting {
+  cursor: grabbing;
+}
+
+.boggle-row {
+  display: contents;
+}
+
+.boggle-tile {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-2xl);
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  color: var(--color-text-primary);
+}
+
+.boggle-tile:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+}
+
+.boggle-tile--selected {
+  background: var(--color-present);
+  color: white;
+  transform: scale(1.05);
+}
+
+.boggle-tile:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.boggle-tile__letter {
+  pointer-events: none;
+}
+
+.boggle-tile__index {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Responsive sizing */
+@media (max-width: 500px) {
+  .boggle-tile {
+    width: 60px;
+    height: 60px;
+    font-size: var(--font-size-xl);
+  }
+}
