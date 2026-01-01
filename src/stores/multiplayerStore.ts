@@ -51,10 +51,11 @@ interface MultiplayerState {
   errorMessage: string;
   partnerConnected: boolean;
   pendingSuggestion: PendingSuggestion | null;
+  currentGameId: string;
 
   // Actions
-  hostGame: (pin?: string) => void;
-  joinGame: (code: string, pin?: string) => void;
+  hostGame: (gameId: string, pin?: string) => void;
+  joinGame: (gameId: string, code: string, pin?: string) => void;
   leaveSession: () => void;
   sendGameState: (state: GameState) => void;
   sendSuggestion: (word: string) => void;
@@ -134,15 +135,16 @@ const rateLimitState: RateLimitState = createRateLimitState();
 export const useMultiplayerStore = create<MultiplayerState>()(
   subscribeWithSelector((set, get) => {
     // Forward declaration for attemptConnection (used in reconnection)
-    let attemptConnection: (code: string, isReconnect?: boolean, pin?: string) => void;
+    let attemptConnection: (gameId: string, code: string, isReconnect?: boolean, pin?: string) => void;
 
     // Host a new game session
-    const hostGame = (pin?: string): void => {
+    const hostGame = (gameId: string, pin?: string): void => {
       cleanup(internal);
       // Reset rate limiting state for fresh session
       resetRateLimitState(rateLimitState);
       const sanitizedPin = pin ? sanitizeSessionPin(pin) : '';
       internal.sessionPinInternal = sanitizedPin;
+      internal.currentGameId = gameId;
 
       set({
         role: 'host',
@@ -151,10 +153,11 @@ export const useMultiplayerStore = create<MultiplayerState>()(
         sessionPin: sanitizedPin,
         partnerConnected: false,
         pendingSuggestion: null,
+        currentGameId: gameId,
       });
 
       const code = generateSessionCode();
-      const peerId = `wordle-${code}`;
+      const peerId = `${gameId}-${code}`;
 
       // Load PeerJS dynamically
       loadPeerJS()
@@ -299,7 +302,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
             console.error('Peer error:', err);
             if (err.type === 'unavailable-id') {
               set({ connectionStatus: 'disconnected' });
-              setTimeout(() => hostGame(internal.sessionPinInternal), GAME_CONFIG.HOST_RETRY_DELAY_MS);
+              setTimeout(() => hostGame(internal.currentGameId, internal.sessionPinInternal), GAME_CONFIG.HOST_RETRY_DELAY_MS);
             } else {
               set({
                 connectionStatus: 'error',
@@ -321,7 +324,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
 
     // Attempt connection (used for initial join and reconnection)
     // eslint-disable-next-line prefer-const
-    attemptConnection = (code: string, isReconnect: boolean = false, pin: string = ''): void => {
+    attemptConnection = (gameId: string, code: string, isReconnect: boolean = false, pin: string = ''): void => {
       try {
         if (internal.connection) {
           internal.connection.close();
@@ -348,9 +351,11 @@ export const useMultiplayerStore = create<MultiplayerState>()(
       if (!isReconnect) {
         internal.reconnectAttempts = 0;
         internal.viewerPinInternal = pin;
+        internal.currentGameId = gameId;
         set({
           role: 'viewer',
           errorMessage: '',
+          currentGameId: gameId,
         });
       }
 
@@ -359,8 +364,8 @@ export const useMultiplayerStore = create<MultiplayerState>()(
 
       set({ connectionStatus: 'connecting' });
 
-      const peerId = `wordle-viewer-${Date.now()}`;
-      const hostPeerId = `wordle-${code}`;
+      const peerId = `${gameId}-viewer-${Date.now()}`;
+      const hostPeerId = `${gameId}-${code}`;
 
       // Load PeerJS dynamically
       loadPeerJS()
@@ -390,7 +395,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
               });
 
               internal.reconnectTimeout = setTimeout(() => {
-                attemptConnection(internal.lastSessionCode, true, internal.viewerPinInternal);
+                attemptConnection(internal.currentGameId, internal.lastSessionCode, true, internal.viewerPinInternal);
               }, delay);
             } else {
               set({
@@ -537,7 +542,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
                 set({ errorMessage: `Host not found. Retrying in ${delay / 1000}s...` });
 
                 internal.reconnectTimeout = setTimeout(() => {
-                  attemptConnection(internal.lastSessionCode, true, internal.viewerPinInternal);
+                  attemptConnection(internal.currentGameId, internal.lastSessionCode, true, internal.viewerPinInternal);
                 }, delay);
               } else if (isReconnect) {
                 set({
@@ -578,7 +583,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
     };
 
     // Join an existing game session
-    const joinGame = (code: string, pin?: string): void => {
+    const joinGame = (gameId: string, code: string, pin?: string): void => {
       // Check rate limiting for connection attempts
       const rateCheck = checkConnectionRateLimit(rateLimitState);
       if (!rateCheck.allowed) {
@@ -612,8 +617,8 @@ export const useMultiplayerStore = create<MultiplayerState>()(
       recordConnectionAttempt(rateLimitState);
 
       cleanup(internal);
-      set({ sessionCode: sanitizedCode, sessionPin: sanitizedPin });
-      attemptConnection(sanitizedCode, false, sanitizedPin);
+      set({ sessionCode: sanitizedCode, sessionPin: sanitizedPin, currentGameId: gameId });
+      attemptConnection(gameId, sanitizedCode, false, sanitizedPin);
     };
 
     return {
@@ -625,6 +630,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
       errorMessage: '',
       partnerConnected: false,
       pendingSuggestion: null,
+      currentGameId: '',
 
       // Computed (these update based on role)
       get isHost() {
@@ -724,7 +730,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
       },
 
       restoreHostConnection: () => {
-        const { role, sessionCode } = get();
+        const { role, sessionCode, currentGameId } = get();
 
         // Only restore if we're a host with a valid session code
         if (role !== 'host' || !sessionCode) {
@@ -742,7 +748,11 @@ export const useMultiplayerStore = create<MultiplayerState>()(
         }
 
         // Peer is disconnected or destroyed - recreate it with the same session code
-        const peerId = `wordle-${sessionCode}`;
+        const gameId = currentGameId || internal.currentGameId || 'wordle';
+        if (!currentGameId && !internal.currentGameId) {
+          console.warn('restoreHostConnection: gameId not found in state, falling back to "wordle"');
+        }
+        const peerId = `${gameId}-${sessionCode}`;
 
         // Clean up the old peer if it exists
         try {
@@ -960,7 +970,7 @@ export const useMultiplayerStore = create<MultiplayerState>()(
           clearReconnectTimeout(internal);
 
           // Attempt to reconnect with saved session code and PIN
-          attemptConnection(internal.lastSessionCode, true, internal.viewerPinInternal);
+          attemptConnection(internal.currentGameId, internal.lastSessionCode, true, internal.viewerPinInternal);
         }
       },
     };

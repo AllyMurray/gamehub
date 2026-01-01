@@ -9,6 +9,7 @@ interface StatsState {
 
   // Actions
   recordGame: (won: boolean, guessCount: number, gameMode: Exclude<GameMode, null>) => void;
+  recordBoggleGame: (score: number, wordsFound: number, gameMode: Exclude<GameMode, null>) => void;
   resetStats: () => void;
 }
 
@@ -31,6 +32,23 @@ export const useStatsStore = create<StatsState>()(
         }));
       },
 
+      // Boggle game recording - just tracks game mode for now
+      // Can be extended later with Boggle-specific stats (best score, most words, etc.)
+      recordBoggleGame: (_score, _wordsFound, gameMode) => {
+        set((state) => ({
+          stats: {
+            ...state.stats,
+            gamesPlayed: state.stats.gamesPlayed + 1,
+            soloGamesPlayed: gameMode === 'solo'
+              ? state.stats.soloGamesPlayed + 1
+              : state.stats.soloGamesPlayed,
+            multiplayerGamesPlayed: gameMode === 'multiplayer'
+              ? state.stats.multiplayerGamesPlayed + 1
+              : state.stats.multiplayerGamesPlayed,
+          },
+        }));
+      },
+
       resetStats: () => {
         set({ stats: { ...DEFAULT_STATISTICS } });
       },
@@ -48,6 +66,7 @@ export const useStatsStore = create<StatsState>()(
 
 export const useStats = () => useStatsStore((state) => state.stats);
 export const useRecordGame = () => useStatsStore((state) => state.recordGame);
+export const useRecordBoggleGame = () => useStatsStore((state) => state.recordBoggleGame);
 export const useResetStats = () => useStatsStore((state) => state.resetStats);
 
 // Derived selectors

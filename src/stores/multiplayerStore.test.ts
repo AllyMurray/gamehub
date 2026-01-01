@@ -187,7 +187,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       expect(useMultiplayerStore.getState().role).toBe('host');
@@ -197,7 +197,7 @@ describe('multiplayerStore', () => {
       const { joinGame } = useMultiplayerStore.getState();
 
       act(() => {
-        joinGame('ABCDEF-abc123');
+        joinGame('wordle', 'ABCDEF-abc123');
       });
 
       expect(useMultiplayerStore.getState().role).toBe('viewer');
@@ -207,7 +207,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       // Wait for async PeerJS loading
@@ -226,7 +226,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       // Status is 'connecting' right after hostGame, not 'connected'
@@ -239,7 +239,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       const state = useMultiplayerStore.getState();
@@ -251,7 +251,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame('1234');
+        hostGame('wordle', '1234');
       });
 
       const state = useMultiplayerStore.getState();
@@ -262,7 +262,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -283,7 +283,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame(); // No PIN
+        hostGame('wordle'); // No PIN
       });
 
       await act(async () => {
@@ -316,7 +316,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       act(() => {
@@ -335,7 +335,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame('1234');
+        hostGame('wordle', '1234');
       });
 
       await act(async () => {
@@ -372,7 +372,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame('1234');
+        hostGame('wordle', '1234');
       });
 
       await act(async () => {
@@ -408,7 +408,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -434,7 +434,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -456,7 +456,7 @@ describe('multiplayerStore', () => {
       const { joinGame } = useMultiplayerStore.getState();
 
       act(() => {
-        joinGame('invalid');
+        joinGame('wordle', 'invalid');
       });
 
       const state = useMultiplayerStore.getState();
@@ -469,7 +469,7 @@ describe('multiplayerStore', () => {
 
       // Valid session code format: 6 chars + separator + 6 hex chars
       act(() => {
-        joinGame('ABCDEF-abc123', '12'); // PIN too short
+        joinGame('wordle', 'ABCDEF-abc123', '12'); // PIN too short
       });
 
       const state = useMultiplayerStore.getState();
@@ -481,7 +481,7 @@ describe('multiplayerStore', () => {
       const { joinGame } = useMultiplayerStore.getState();
 
       act(() => {
-        joinGame('ABCDEF-abc123');
+        joinGame('wordle', 'ABCDEF-abc123');
       });
 
       const state = useMultiplayerStore.getState();
@@ -494,7 +494,7 @@ describe('multiplayerStore', () => {
       const { joinGame } = useMultiplayerStore.getState();
 
       act(() => {
-        joinGame('ABCDEF-abc123', '1234');
+        joinGame('wordle', 'ABCDEF-abc123', '1234');
       });
 
       // Simulate peer opening
@@ -519,7 +519,7 @@ describe('multiplayerStore', () => {
       const { joinGame } = useMultiplayerStore.getState();
 
       act(() => {
-        joinGame('ABCDEF-abc123');
+        joinGame('wordle', 'ABCDEF-abc123');
       });
 
       act(() => {
@@ -545,7 +545,7 @@ describe('multiplayerStore', () => {
       const { joinGame } = useMultiplayerStore.getState();
 
       act(() => {
-        joinGame('ABCDEF-abc123', '0000');
+        joinGame('wordle', 'ABCDEF-abc123', '0000');
       });
 
       act(() => {
@@ -571,7 +571,7 @@ describe('multiplayerStore', () => {
       const { joinGame } = useMultiplayerStore.getState();
 
       act(() => {
-        joinGame('ABCDEF-abc123');
+        joinGame('wordle', 'ABCDEF-abc123');
       });
 
       await act(async () => {
@@ -625,7 +625,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -657,7 +657,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -696,7 +696,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -734,7 +734,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -814,7 +814,7 @@ describe('multiplayerStore', () => {
       const { hostGame, sendGameState } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       act(() => {
@@ -918,7 +918,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       act(() => {
@@ -947,7 +947,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -986,7 +986,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -1030,7 +1030,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -1064,7 +1064,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -1122,7 +1122,7 @@ describe('multiplayerStore', () => {
             connectionStatus: 'disconnected',
             errorMessage: '',
           });
-          joinGame('ABCDEF-abc123');
+          joinGame('wordle', 'ABCDEF-abc123');
         });
       }
 
@@ -1132,7 +1132,7 @@ describe('multiplayerStore', () => {
           connectionStatus: 'disconnected',
           errorMessage: '',
         });
-        joinGame('ABCDEF-abc123');
+        joinGame('wordle', 'ABCDEF-abc123');
       });
 
       const state = useMultiplayerStore.getState();
@@ -1150,7 +1150,7 @@ describe('multiplayerStore', () => {
             connectionStatus: 'disconnected',
             errorMessage: '',
           });
-          joinGame('ABCDEF-abc123');
+          joinGame('wordle', 'ABCDEF-abc123');
         });
       }
 
@@ -1164,7 +1164,7 @@ describe('multiplayerStore', () => {
 
       // Should be allowed again
       act(() => {
-        joinGame('ABCDEF-abc123');
+        joinGame('wordle', 'ABCDEF-abc123');
       });
 
       expect(useMultiplayerStore.getState().connectionStatus).toBe('connecting');
@@ -1174,7 +1174,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame('1234');
+        hostGame('wordle', '1234');
       });
 
       await act(async () => {
@@ -1217,7 +1217,7 @@ describe('multiplayerStore', () => {
       const { hostGame } = useMultiplayerStore.getState();
 
       act(() => {
-        hostGame('1234');
+        hostGame('wordle', '1234');
       });
 
       await act(async () => {
@@ -1269,7 +1269,7 @@ describe('multiplayerStore', () => {
             connectionStatus: 'disconnected',
             errorMessage: '',
           });
-          joinGame('ABCDEF-abc123');
+          joinGame('wordle', 'ABCDEF-abc123');
         });
       }
 
@@ -1282,7 +1282,7 @@ describe('multiplayerStore', () => {
       });
 
       act(() => {
-        hostGame();
+        hostGame('wordle');
       });
 
       await act(async () => {
@@ -1295,7 +1295,7 @@ describe('multiplayerStore', () => {
       });
 
       act(() => {
-        joinGame('ABCDEF-abc123');
+        joinGame('wordle', 'ABCDEF-abc123');
       });
 
       expect(useMultiplayerStore.getState().connectionStatus).toBe('connecting');

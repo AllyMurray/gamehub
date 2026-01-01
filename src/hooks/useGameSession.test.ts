@@ -145,7 +145,7 @@ describe('useGameSession', () => {
         result.current.handleHost('1234');
       });
 
-      expect(hostGameSpy).toHaveBeenCalledWith('1234');
+      expect(hostGameSpy).toHaveBeenCalledWith('wordle', '1234');
     });
   });
 
@@ -162,7 +162,7 @@ describe('useGameSession', () => {
         result.current.handleJoin('ABC123');
       });
 
-      expect(joinGameSpy).toHaveBeenCalledWith('ABC123', undefined);
+      expect(joinGameSpy).toHaveBeenCalledWith('wordle', 'ABC123', undefined);
       expect(result.current.gameMode).toBe('multiplayer');
     });
 
@@ -178,7 +178,7 @@ describe('useGameSession', () => {
         result.current.handleJoin('ABC123', '5678');
       });
 
-      expect(joinGameSpy).toHaveBeenCalledWith('ABC123', '5678');
+      expect(joinGameSpy).toHaveBeenCalledWith('wordle', 'ABC123', '5678');
     });
   });
 

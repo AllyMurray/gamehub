@@ -4,13 +4,16 @@ import ThemeToggle from './ThemeToggle';
 import './Lobby.css';
 
 interface LobbyProps {
+  gameName: string;
+  gameDescription?: string;
   onHost: (pin?: string) => void;
   onJoin: (code: string, pin?: string) => void;
   onPlaySolo: () => void;
+  onBack?: () => void;
   initialJoinCode?: string | null;
 }
 
-const Lobby = memo(({ onHost, onJoin, onPlaySolo, initialJoinCode }: LobbyProps) => {
+const Lobby = memo(({ gameName, gameDescription, onHost, onJoin, onPlaySolo, onBack, initialJoinCode }: LobbyProps) => {
   const [joinCode, setJoinCode] = useState(initialJoinCode || '');
   const [joinPin, setJoinPin] = useState('');
   const [hostPin, setHostPin] = useState('');
@@ -65,13 +68,24 @@ const Lobby = memo(({ onHost, onJoin, onPlaySolo, initialJoinCode }: LobbyProps)
   const isHostPinValid = hostPin === '' || isValidSessionPin(hostPin);
 
   return (
-    <div className="lobby" role="main" aria-label="Wordle game lobby">
-      <div className="lobby-theme-toggle">
-        <ThemeToggle />
+    <div className="lobby" role="main" aria-label={`${gameName} game lobby`}>
+      <div className="lobby-header">
+        {onBack && (
+          <button
+            className="lobby-back-btn"
+            onClick={onBack}
+            aria-label="Back to game selection"
+          >
+            ← Back
+          </button>
+        )}
+        <div className="lobby-theme-toggle">
+          <ThemeToggle />
+        </div>
       </div>
       <div className="lobby-content">
-        <h1 className="lobby-title">Wordle</h1>
-        <p className="lobby-subtitle">Play together with a partner</p>
+        <h1 className="lobby-title">{gameName}</h1>
+        <p className="lobby-subtitle">{gameDescription || 'Play solo or with a partner'}</p>
 
         <div className="lobby-buttons" role="group" aria-label="Game mode selection">
           <button

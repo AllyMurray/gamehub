@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { useLatest } from './useLatest';
+import { useMultiplayerReconnection } from './useMultiplayerReconnection';
 import { WORDS } from '../data/words';
 import {
   useGameStore,
@@ -67,8 +68,10 @@ export interface UseGameSessionReturn {
  * - Uses store selectors instead of hook return values
  * - Registers callbacks directly with multiplayerStore module
  * - No more useRef patterns for callbacks
+ *
+ * @param gameId - The game identifier (e.g., 'wordle', 'boggle') used for multiplayer peer IDs
  */
-export const useGameSession = (): UseGameSessionReturn => {
+export const useGameSession = (gameId: string = 'wordle'): UseGameSessionReturn => {
   // Game store
   const solution = useGameStore((s) => s.solution);
   const guesses = useGameStore((s) => s.guesses);
@@ -107,8 +110,6 @@ export const useGameSession = (): UseGameSessionReturn => {
   const clearSuggestion = useMultiplayerStore((s) => s.clearSuggestion);
   const acceptSuggestion = useMultiplayerStore((s) => s.acceptSuggestion);
   const rejectSuggestion = useMultiplayerStore((s) => s.rejectSuggestion);
-  const restoreHostConnection = useMultiplayerStore((s) => s.restoreHostConnection);
-  const restoreViewerConnection = useMultiplayerStore((s) => s.restoreViewerConnection);
 
   // UI store
   const gameMode = useUIStore((s) => s.gameMode);
@@ -124,35 +125,8 @@ export const useGameSession = (): UseGameSessionReturn => {
     setIsViewer(isViewer);
   }, [isViewer, setIsViewer]);
 
-  // Handle page visibility changes for connection restoration (host and viewer)
-  // On iOS Safari, WebRTC connections are suspended when the app is backgrounded
-  // (e.g., when switching to WhatsApp to share the game link).
-  // This effect restores the connection when the page becomes visible again.
-  useEffect(() => {
-    if (!isHost && !isViewer) return;
-
-    const restoreConnection = isHost ? restoreHostConnection : restoreViewerConnection;
-
-    const handleVisibilityChange = (): void => {
-      if (document.visibilityState === 'visible') {
-        restoreConnection();
-      }
-    };
-
-    const handlePageShow = (event: PageTransitionEvent): void => {
-      if (event.persisted) {
-        restoreConnection();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('pageshow', handlePageShow);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('pageshow', handlePageShow);
-    };
-  }, [isHost, isViewer, restoreHostConnection, restoreViewerConnection]);
+  // Handle page visibility changes for connection restoration
+  useMultiplayerReconnection();
 
   // Handle viewer guess changes - validate and send to host as suggestion
   const handleViewerGuessChange = useCallback(
@@ -298,18 +272,18 @@ export const useGameSession = (): UseGameSessionReturn => {
 
   const handleHost = useCallback(
     (pin?: string): void => {
-      hostGame(pin);
+      hostGame(gameId, pin);
       setGameMode('multiplayer');
     },
-    [hostGame, setGameMode]
+    [hostGame, setGameMode, gameId]
   );
 
   const handleJoin = useCallback(
     (code: string, pin?: string): void => {
-      joinGame(code, pin);
+      joinGame(gameId, code, pin);
       setGameMode('multiplayer');
     },
-    [joinGame, setGameMode]
+    [joinGame, setGameMode, gameId]
   );
 
   const handleLeave = useCallback((): void => {
