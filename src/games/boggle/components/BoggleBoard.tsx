@@ -38,10 +38,12 @@ export const BoggleBoard = memo(function BoggleBoard({
   );
 
   const handlePointerDown = useCallback(
-    (row: number, col: number) => {
+    (event: React.PointerEvent, row: number, col: number) => {
       if (disabled) return;
       isDraggingRef.current = true;
       setIsSelecting(true);
+      // Capture pointer to receive events even when pointer leaves the board
+      (event.target as HTMLElement).setPointerCapture(event.pointerId);
       onTileSelect({ row, col });
     },
     [disabled, onTileSelect]
@@ -55,15 +57,20 @@ export const BoggleBoard = memo(function BoggleBoard({
     [disabled, onTileSelect]
   );
 
-  const handlePointerUp = useCallback(() => {
-    if (isDraggingRef.current) {
-      isDraggingRef.current = false;
-      setIsSelecting(false);
-      if (selectedPath.length >= 3) {
-        onSubmit();
+  const handlePointerUp = useCallback(
+    (event: React.PointerEvent) => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        setIsSelecting(false);
+        // Release pointer capture
+        (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+        if (selectedPath.length >= 3) {
+          onSubmit();
+        }
       }
-    }
-  }, [selectedPath.length, onSubmit]);
+    },
+    [selectedPath.length, onSubmit]
+  );
 
   return (
     <div className="boggle-board-container">
@@ -71,8 +78,6 @@ export const BoggleBoard = memo(function BoggleBoard({
       <div
         ref={boardRef}
         className={`boggle-board ${isSelecting ? 'boggle-board--selecting' : ''}`}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
         role="grid"
         aria-label="Boggle board"
       >
@@ -86,8 +91,9 @@ export const BoggleBoard = memo(function BoggleBoard({
                 <button
                   key={colIndex}
                   className={`boggle-tile ${selected ? 'boggle-tile--selected' : ''}`}
-                  onPointerDown={() => handlePointerDown(rowIndex, colIndex)}
+                  onPointerDown={(e) => handlePointerDown(e, rowIndex, colIndex)}
                   onPointerEnter={() => handlePointerEnter(rowIndex, colIndex)}
+                  onPointerUp={handlePointerUp}
                   disabled={disabled}
                   role="gridcell"
                   aria-label={`${letter}${selected ? ', selected' : ''}`}
