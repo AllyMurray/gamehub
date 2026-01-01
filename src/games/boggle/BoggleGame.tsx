@@ -79,6 +79,8 @@ export default function BoggleGame() {
   const hostGame = useMultiplayerStore((s) => s.hostGame);
   const joinGame = useMultiplayerStore((s) => s.joinGame);
   const leaveSession = useMultiplayerStore((s) => s.leaveSession);
+  const restoreHostConnection = useMultiplayerStore((s) => s.restoreHostConnection);
+  const restoreViewerConnection = useMultiplayerStore((s) => s.restoreViewerConnection);
 
   // Stats
   const recordBoggleGame = useStatsStore((s) => s.recordBoggleGame);
@@ -124,6 +126,22 @@ export default function BoggleGame() {
       lastRecordedGameRef.current = null;
     }
   }, [gameOver, localGameMode, isViewer, score, foundWords.length, recordBoggleGame]);
+
+  // Handle page visibility changes for connection restoration (iOS Safari backgrounding)
+  useEffect(() => {
+    if (!isHost && !isViewer) return;
+
+    const restoreConnection = isHost ? restoreHostConnection : restoreViewerConnection;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        restoreConnection();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isHost, isViewer, restoreHostConnection, restoreViewerConnection]);
 
   const handleBack = useCallback(() => {
     stopTimer();
