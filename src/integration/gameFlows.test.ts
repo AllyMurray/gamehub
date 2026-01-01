@@ -550,7 +550,7 @@ describe('Integration: Multiplayer Host/Join Flow', () => {
       result.current.handleHost('1234');
     });
 
-    expect(mockHostGame).toHaveBeenCalledWith('1234');
+    expect(mockHostGame).toHaveBeenCalledWith('wordle', '1234');
   });
 
   it('should set up join mode correctly', () => {
@@ -567,7 +567,7 @@ describe('Integration: Multiplayer Host/Join Flow', () => {
       result.current.handleJoin('ABCDEF-123456');
     });
 
-    expect(mockJoinGame).toHaveBeenCalledWith('ABCDEF-123456', undefined);
+    expect(mockJoinGame).toHaveBeenCalledWith('wordle', 'ABCDEF-123456', undefined);
     expect(result.current.gameMode).toBe('multiplayer');
   });
 
@@ -585,7 +585,7 @@ describe('Integration: Multiplayer Host/Join Flow', () => {
       result.current.handleJoin('ABCDEF-123456', '5678');
     });
 
-    expect(mockJoinGame).toHaveBeenCalledWith('ABCDEF-123456', '5678');
+    expect(mockJoinGame).toHaveBeenCalledWith('wordle', 'ABCDEF-123456', '5678');
   });
 
   it('should handle host receiving viewer suggestion', () => {

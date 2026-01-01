@@ -93,6 +93,7 @@ export interface InternalConnectionState {
   viewerPinInternal: string;
   isAuthenticated: boolean;
   lastHeartbeat: number;
+  currentGameId: string;
   // Callbacks for game state updates (set by useGameSession)
   onGameStateReceived: ((state: ViewerGameState) => void) | null;
   onSuggestionResponse: ((accepted: boolean) => void) | null;
@@ -112,6 +113,7 @@ export const createInternalState = (): InternalConnectionState => ({
   viewerPinInternal: '',
   isAuthenticated: false,
   lastHeartbeat: 0,
+  currentGameId: '',
   onGameStateReceived: null,
   onSuggestionResponse: null,
 });

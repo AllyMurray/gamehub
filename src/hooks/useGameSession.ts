@@ -67,8 +67,10 @@ export interface UseGameSessionReturn {
  * - Uses store selectors instead of hook return values
  * - Registers callbacks directly with multiplayerStore module
  * - No more useRef patterns for callbacks
+ *
+ * @param gameId - The game identifier (e.g., 'wordle', 'boggle') used for multiplayer peer IDs
  */
-export const useGameSession = (): UseGameSessionReturn => {
+export const useGameSession = (gameId: string = 'wordle'): UseGameSessionReturn => {
   // Game store
   const solution = useGameStore((s) => s.solution);
   const guesses = useGameStore((s) => s.guesses);
@@ -298,18 +300,18 @@ export const useGameSession = (): UseGameSessionReturn => {
 
   const handleHost = useCallback(
     (pin?: string): void => {
-      hostGame(pin);
+      hostGame(gameId, pin);
       setGameMode('multiplayer');
     },
-    [hostGame, setGameMode]
+    [hostGame, setGameMode, gameId]
   );
 
   const handleJoin = useCallback(
     (code: string, pin?: string): void => {
-      joinGame(code, pin);
+      joinGame(gameId, code, pin);
       setGameMode('multiplayer');
     },
-    [joinGame, setGameMode]
+    [joinGame, setGameMode, gameId]
   );
 
   const handleLeave = useCallback((): void => {

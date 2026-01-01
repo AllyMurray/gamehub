@@ -53,3 +53,202 @@
 .play-again-btn:hover {
   background: var(--color-correct-hover);
 }
+
+/* Stats button */
+.stats-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+  min-width: 70px;
+}
+
+.stats-btn:hover {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+/* Connection status styles */
+.connection-status {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  width: 100%;
+}
+
+.session-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.session-label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.session-code {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-present);
+  padding: 6px var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  letter-spacing: 0.2rem;
+}
+
+.session-pin-indicator {
+  font-size: var(--font-size-base);
+  cursor: help;
+  filter: drop-shadow(0 0 2px rgba(181, 159, 59, 0.5));
+}
+
+/* Share buttons */
+.share-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.share-btn {
+  border: none;
+  padding: 6px var(--space-3);
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.share-btn.copy {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.share-btn.copy:hover {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}
+
+.share-btn.whatsapp {
+  background-color: var(--color-whatsapp);
+  color: white;
+}
+
+.share-btn.whatsapp:hover {
+  background-color: var(--color-whatsapp-hover);
+}
+
+.share-btn:active {
+  transform: scale(0.95);
+}
+
+.viewer-label {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+}
+
+.partner-status {
+  font-size: var(--font-size-sm);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-lg);
+}
+
+.partner-status.connected {
+  background-color: rgba(83, 141, 78, 0.2);
+  color: var(--color-correct);
+}
+
+.partner-status.waiting {
+  background-color: rgba(181, 159, 59, 0.2);
+  color: var(--color-present);
+}
+
+.partner-status.error {
+  background-color: rgba(255, 100, 100, 0.2);
+  color: var(--color-error);
+}
+
+/* Suggestion panel styles */
+.suggestion-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background-color: rgba(181, 159, 59, 0.15);
+  border: 1px solid var(--color-present);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  width: 100%;
+  flex-wrap: wrap;
+  animation: slideDown var(--transition-base);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suggestion-label {
+  color: var(--color-present);
+  font-size: var(--font-size-base);
+}
+
+.suggestion-word {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  letter-spacing: 0.3rem;
+  text-transform: uppercase;
+}
+
+.suggestion-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.suggestion-btn {
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.suggestion-btn.accept {
+  background-color: var(--color-correct);
+  color: var(--color-text-primary);
+}
+
+.suggestion-btn.accept:hover {
+  background-color: var(--color-correct-hover);
+}
+
+.suggestion-btn.reject {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.suggestion-btn.reject:hover {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}

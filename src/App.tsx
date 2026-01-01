@@ -149,6 +149,8 @@ function App() {
   if (!gameMode) {
     return (
       <Lobby
+        gameName="Wordle"
+        gameDescription="Play together with a partner"
         onHost={handleHost}
         onJoin={handleJoin}
         onPlaySolo={handlePlaySolo}
