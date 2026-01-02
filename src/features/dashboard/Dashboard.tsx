@@ -20,7 +20,7 @@ export function Dashboard() {
             <h2 className="game-name">{game.name}</h2>
             <p className="game-description">{game.description}</p>
             {game.supportsMultiplayer && (
-              <span className="multiplayer-badge">2 Players</span>
+              <span className="multiplayer-badge">Multiplayer</span>
             )}
           </Link>
         ))}
