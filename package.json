@@ -1,9 +1,9 @@
 {
-  "name": "wordle",
+  "name": "gamehub",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://allymurray.github.io/wordle/",
+  "homepage": "https://allymurray.github.io/gamehub/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

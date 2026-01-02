@@ -1,14 +1,14 @@
-// Service Worker for Wordle PWA
-const CACHE_NAME = 'wordle-v1';
-const BASE_PATH = '/wordle/';
+// Service Worker for Game Hub PWA
+const CACHE_NAME = 'gamehub-v1';
+const BASE_PATH = '/';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
   BASE_PATH,
   BASE_PATH + 'index.html',
   BASE_PATH + 'manifest.json',
-  BASE_PATH + 'icons/icon-192.svg',
-  BASE_PATH + 'icons/icon-512.svg',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
 ];
 
 // Install event - cache static assets
@@ -28,7 +28,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name.startsWith('wordle-') && name !== CACHE_NAME)
+          .filter((name) => name.startsWith('gamehub-') && name !== CACHE_NAME)
           .map((name) => caches.delete(name))
       );
     })
