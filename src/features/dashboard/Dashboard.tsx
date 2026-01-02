@@ -20,14 +20,14 @@ export function Dashboard() {
             <h2 className="game-name">{game.name}</h2>
             <p className="game-description">{game.description}</p>
             {game.supportsMultiplayer && (
-              <span className="multiplayer-badge">Multiplayer</span>
+              <span className="multiplayer-badge">2 Players</span>
             )}
           </Link>
         ))}
       </main>
 
       <footer className="dashboard-footer">
-        <p className="footer-text">Select a game to play</p>
+        <p className="footer-text">Select your challenge</p>
       </footer>
     </div>
   );
