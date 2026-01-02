@@ -16,6 +16,7 @@ interface BoggleStoreState extends BoggleState {
   clearSelection: () => void;
   endGame: () => void;
   resetGame: () => void;
+  rotateBoard: (direction: 'left' | 'right') => void;
 
   // State getters
   getState: () => BoggleState;
@@ -195,6 +196,42 @@ export const useBoggleStore = create<BoggleStoreState>()(
         score: 0,
         gameOver: false,
         isLoading: true,
+      });
+    },
+
+    rotateBoard: (direction: 'left' | 'right') => {
+      const { board } = get();
+      if (!board) return;
+
+      const { grid, size } = board;
+      const newGrid: string[][] = Array(size)
+        .fill(null)
+        .map(() => Array(size).fill(''));
+
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          const letter = grid[row]?.[col] ?? '';
+          if (direction === 'right') {
+            // Rotate right 90°: [row][col] -> [col][size-1-row]
+            const targetRow = newGrid[col];
+            if (targetRow) {
+              targetRow[size - 1 - row] = letter;
+            }
+          } else {
+            // Rotate left 90°: [row][col] -> [size-1-col][row]
+            const targetRow = newGrid[size - 1 - col];
+            if (targetRow) {
+              targetRow[row] = letter;
+            }
+          }
+        }
+      }
+
+      // Clear current selection when rotating
+      set({
+        board: { grid: newGrid, size },
+        currentPath: [],
+        currentWord: '',
       });
     },
 

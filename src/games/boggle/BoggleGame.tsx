@@ -39,6 +39,7 @@ export default function BoggleGame() {
   const submitWord = useBoggleStore((s) => s.submitWord);
   const endGame = useBoggleStore((s) => s.endGame);
   const resetGame = useBoggleStore((s) => s.resetGame);
+  const rotateBoard = useBoggleStore((s) => s.rotateBoard);
 
   // Timer store state
   const timeRemaining = useTimerStore((s) => s.timeRemaining);
@@ -156,6 +157,14 @@ export default function BoggleGame() {
   const handleSubmit = useCallback(() => {
     submitWord();
   }, [submitWord]);
+
+  const handleRotateLeft = useCallback(() => {
+    rotateBoard('left');
+  }, [rotateBoard]);
+
+  const handleRotateRight = useCallback(() => {
+    rotateBoard('right');
+  }, [rotateBoard]);
 
   // Game mode handlers - all transition to 'loading' phase
   const handlePlaySolo = useCallback(() => {
@@ -295,6 +304,34 @@ export default function BoggleGame() {
           <div className="score-display">
             Score: <strong>{score}</strong>
           </div>
+        </div>
+
+        <div className="boggle-controls">
+          <button
+            className="control-btn rotate-btn"
+            onClick={handleRotateLeft}
+            disabled={gamePhase === 'gameOver'}
+            aria-label="Rotate board left 90 degrees"
+            title="Rotate left"
+          >
+            <span className="rotate-icon">↺</span>
+          </button>
+          <button
+            className="control-btn new-game-btn"
+            onClick={handleNewGame}
+            aria-label="Start a new game"
+          >
+            New Game
+          </button>
+          <button
+            className="control-btn rotate-btn"
+            onClick={handleRotateRight}
+            disabled={gamePhase === 'gameOver'}
+            aria-label="Rotate board right 90 degrees"
+            title="Rotate right"
+          >
+            <span className="rotate-icon">↻</span>
+          </button>
         </div>
 
         <div className="boggle-content">
