@@ -7,10 +7,12 @@
   align-items: center;
   font-size: var(--font-size-3xl);
   font-weight: bold;
+  line-height: 1;
   text-transform: uppercase;
   color: var(--color-text-primary);
   box-sizing: border-box;
   user-select: none;
+  will-change: transform;
 }
 
 .tile.filled {
