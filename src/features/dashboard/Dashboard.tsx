@@ -27,7 +27,7 @@ export function Dashboard() {
       </main>
 
       <footer className="dashboard-footer">
-        <p className="footer-text">Select your challenge</p>
+        <p className="footer-text">Select a game to play</p>
       </footer>
     </div>
   );
