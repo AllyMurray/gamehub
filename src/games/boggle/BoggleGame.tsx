@@ -311,39 +311,38 @@ export default function BoggleGame() {
           </ErrorBoundary>
         )}
 
-        <div className="boggle-header">
+        <div className="boggle-game-bar">
           <Timer timeRemaining={timeRemaining} />
-          <div className="score-display">
-            Score: <strong>{score}</strong>
+          <div className="boggle-controls">
+            <button
+              className="control-btn rotate-btn"
+              onClick={handleRotateLeft}
+              disabled={gamePhase === 'gameOver'}
+              aria-label="Rotate board left 90 degrees"
+              title="Rotate left"
+            >
+              <span className="rotate-icon">↺</span>
+            </button>
+            <button
+              className="control-btn new-game-btn"
+              onClick={handleNewGame}
+              aria-label="Start a new game"
+            >
+              New
+            </button>
+            <button
+              className="control-btn rotate-btn"
+              onClick={handleRotateRight}
+              disabled={gamePhase === 'gameOver'}
+              aria-label="Rotate board right 90 degrees"
+              title="Rotate right"
+            >
+              <span className="rotate-icon">↻</span>
+            </button>
           </div>
-        </div>
-
-        <div className="boggle-controls">
-          <button
-            className="control-btn rotate-btn"
-            onClick={handleRotateLeft}
-            disabled={gamePhase === 'gameOver'}
-            aria-label="Rotate board left 90 degrees"
-            title="Rotate left"
-          >
-            <span className="rotate-icon">↺</span>
-          </button>
-          <button
-            className="control-btn new-game-btn"
-            onClick={handleNewGame}
-            aria-label="Start a new game"
-          >
-            New Game
-          </button>
-          <button
-            className="control-btn rotate-btn"
-            onClick={handleRotateRight}
-            disabled={gamePhase === 'gameOver'}
-            aria-label="Rotate board right 90 degrees"
-            title="Rotate right"
-          >
-            <span className="rotate-icon">↻</span>
-          </button>
+          <div className="score-display">
+            <strong>{score}</strong> pts
+          </div>
         </div>
 
         <div className="boggle-content">

@@ -2,10 +2,17 @@
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-primary);
   border-radius: var(--radius-md);
-  padding: var(--space-4);
-  max-height: 300px;
+  padding: var(--space-3);
   overflow-y: auto;
-  min-width: 200px;
+  min-height: 100px;
+  max-height: 300px;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .word-list {
+    max-height: 150px;
+  }
 }
 
 .word-list--empty {
@@ -23,7 +30,7 @@
 .word-list__header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--color-border-primary);
 }
@@ -55,7 +62,7 @@
 .word-list__item {
   display: flex;
   justify-content: space-between;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-bg-primary);
   transition: background-color var(--transition-fast);
@@ -67,6 +74,7 @@
 
 .word-list__word {
   font-family: var(--font-family-display);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -75,6 +83,7 @@
 
 .word-list__points {
   font-family: var(--font-family-display);
+  font-size: var(--font-size-sm);
   color: var(--color-correct);
   font-weight: 700;
 }

@@ -2,10 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4);
+  gap: var(--space-3);
+  padding: var(--space-3);
   width: 100%;
   max-width: 800px;
+  min-height: 0;
+  flex: 1;
 }
 
 .loading {
@@ -18,22 +20,26 @@
   color: var(--color-text-secondary);
 }
 
-.boggle-header {
+/* Unified game bar - timer, controls, and score in balanced row */
+.boggle-game-bar {
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  justify-content: space-between;
   width: 100%;
-  justify-content: center;
+  max-width: 400px;
+  gap: var(--space-3);
 }
 
 .score-display {
   font-family: var(--font-family-display);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-primary);
+  min-width: 90px;
+  text-align: center;
 }
 
 .score-display strong {
@@ -45,18 +51,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .control-btn {
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-1) var(--space-2);
   font-family: var(--font-family-display);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: 600;
   background: var(--color-bg-secondary);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-base);
   text-transform: uppercase;
@@ -79,12 +85,12 @@
 }
 
 .rotate-btn {
-  padding: var(--space-2) var(--space-3);
-  min-width: 44px;
+  padding: var(--space-1) var(--space-2);
+  min-width: 32px;
 }
 
 .rotate-icon {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-md);
   line-height: 1;
 }
 
@@ -102,9 +108,20 @@
 
 .boggle-content {
   display: flex;
-  gap: var(--space-6);
+  gap: var(--space-4);
   width: 100%;
   justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.boggle-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 180px;
+  max-width: 200px;
+  min-height: 0;
 }
 
 @media (max-width: 768px) {
@@ -115,15 +132,10 @@
 
   .boggle-sidebar {
     width: 100%;
-    max-width: 320px;
+    max-width: 100%;
+    flex: 1;
+    min-height: 0;
   }
-}
-
-.boggle-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 200px;
 }
 
 .game-over-panel {
