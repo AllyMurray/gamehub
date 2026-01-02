@@ -39,6 +39,33 @@
   cursor: grabbing;
 }
 
+/* Rotation animations */
+@keyframes rotate-left {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-90deg);
+  }
+}
+
+@keyframes rotate-right {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+.boggle-board--rotate-left {
+  animation: rotate-left 0.3s ease-in-out forwards;
+}
+
+.boggle-board--rotate-right {
+  animation: rotate-right 0.3s ease-in-out forwards;
+}
+
 .boggle-row {
   display: contents;
 }
@@ -115,5 +142,10 @@
 
   .boggle-tile--selected {
     transform: none;
+  }
+
+  .boggle-board--rotate-left,
+  .boggle-board--rotate-right {
+    animation-duration: 0.01s;
   }
 }
