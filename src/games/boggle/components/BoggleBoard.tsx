@@ -108,7 +108,9 @@ export const BoggleBoard = memo(function BoggleBoard({
 
   return (
     <div className="boggle-board-container">
-      {currentWord && <div className="current-word">{currentWord}</div>}
+      <div className={`current-word${currentWord ? '' : ' current-word--empty'}`}>
+        {currentWord || '\u00A0'}
+      </div>
       <div
         ref={boardRef}
         className={`boggle-board ${isSelecting ? 'boggle-board--selecting' : ''}`}
