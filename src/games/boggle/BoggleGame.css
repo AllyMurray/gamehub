@@ -40,6 +40,66 @@
   color: var(--color-correct);
 }
 
+/* Game controls */
+.boggle-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.control-btn {
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.control-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-present);
+  transform: translateY(-1px);
+}
+
+.control-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rotate-btn {
+  padding: var(--space-2) var(--space-3);
+  min-width: 44px;
+}
+
+.rotate-icon {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
+.new-game-btn {
+  background: var(--color-present);
+  color: white;
+  border-color: var(--color-present);
+}
+
+.new-game-btn:hover {
+  background: var(--color-present-hover);
+  border-color: var(--color-present-hover);
+  box-shadow: 0 4px 12px var(--color-present-glow);
+}
+
 .boggle-content {
   display: flex;
   gap: var(--space-6);
@@ -252,6 +312,10 @@
   }
 
   .share-btn:active {
+    transform: none;
+  }
+
+  .control-btn:hover:not(:disabled) {
     transform: none;
   }
 }
