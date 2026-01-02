@@ -3,24 +3,30 @@ import type { BoggleBoard } from './types';
 /**
  * Boggle dice configuration (standard 4x4 Boggle)
  * Each die has 6 faces represented as an array of letters
+ *
+ * This uses the "New Boggle" dice distribution (1987-present), which replaced
+ * the original 1976 dice. The redesign increased vowel frequency and improved
+ * letter combinations, resulting in ~12% more findable words per board.
+ *
+ * Source: https://www.bananagrammer.com/2013/10/the-boggle-cube-redesign-and-its-effect.html
  */
 const DICE: string[][] = [
-  ['R', 'I', 'F', 'O', 'B', 'X'],
-  ['I', 'F', 'E', 'H', 'E', 'Y'],
-  ['D', 'E', 'N', 'O', 'W', 'S'],
-  ['U', 'T', 'O', 'K', 'N', 'D'],
-  ['H', 'M', 'S', 'R', 'A', 'O'],
-  ['L', 'U', 'P', 'E', 'T', 'S'],
-  ['A', 'C', 'I', 'T', 'O', 'A'],
-  ['Y', 'L', 'G', 'K', 'U', 'E'],
-  ['Qu', 'B', 'M', 'J', 'O', 'A'],
-  ['E', 'H', 'I', 'S', 'P', 'N'],
-  ['V', 'E', 'T', 'I', 'G', 'N'],
-  ['B', 'A', 'L', 'I', 'Y', 'T'],
-  ['E', 'Z', 'A', 'V', 'N', 'D'],
-  ['R', 'A', 'L', 'E', 'S', 'C'],
-  ['U', 'W', 'I', 'L', 'R', 'G'],
-  ['P', 'A', 'C', 'E', 'M', 'D'],
+  ['A', 'A', 'E', 'E', 'G', 'N'],
+  ['A', 'B', 'B', 'J', 'O', 'O'],
+  ['A', 'C', 'H', 'O', 'P', 'S'],
+  ['A', 'F', 'F', 'K', 'P', 'S'],
+  ['A', 'O', 'O', 'T', 'T', 'W'],
+  ['C', 'I', 'M', 'O', 'T', 'U'],
+  ['D', 'E', 'I', 'L', 'R', 'X'],
+  ['D', 'E', 'L', 'R', 'V', 'Y'],
+  ['D', 'I', 'S', 'T', 'T', 'Y'],
+  ['E', 'E', 'G', 'H', 'N', 'W'],
+  ['E', 'E', 'I', 'N', 'S', 'U'],
+  ['E', 'H', 'R', 'T', 'V', 'W'],
+  ['E', 'I', 'O', 'S', 'S', 'T'],
+  ['E', 'L', 'R', 'T', 'T', 'Y'],
+  ['H', 'I', 'M', 'N', 'U', 'Qu'],
+  ['H', 'L', 'N', 'N', 'R', 'Z'],
 ];
 
 /**

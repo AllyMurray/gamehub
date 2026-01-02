@@ -1,6 +1,6 @@
-# Wordle
+# Game Hub
 
-A React-based Wordle clone with real-time peer-to-peer multiplayer support, built with modern web technologies.
+A collection of React-based word games with real-time peer-to-peer multiplayer support, built with modern web technologies.
 
 ## Features
 
@@ -303,6 +303,41 @@ flowchart TD
 | 2 | P | P | Match! | - | correct (green) |
 | 3 | A | L | - | A at pos 4 unused | present (yellow) |
 | 4 | L | E | - | L at pos 3 used | absent (gray) |
+
+## Boggle
+
+### Dice Distribution
+
+Boggle uses 16 dice arranged in a 4x4 grid. This implementation uses the **"New Boggle" dice distribution (1987-present)**, which replaced the original 1976 dice.
+
+#### Why the 1987 Dice?
+
+Hasbro redesigned the dice in 1987 to improve gameplay:
+
+| Aspect | Classic (1976-1986) | New (1987-present) |
+|--------|---------------------|---------------------|
+| E frequency | 10.42% | 11.46% |
+| Vowel coverage | Lower | Higher |
+| Findable words | Baseline | ~12% more |
+| Player experience | Harder | More satisfying |
+
+The redesign specifically addressed player feedback that the original dice made it too difficult to find words.
+
+#### Current Dice Configuration
+
+```
+AAEEGN  ABBJOO  ACHOPS  AFFKPS
+AOOTTW  CIMOTU  DEILRX  DELRVY
+DISTTY  EEGHNW  EEINSU  EHRTVW
+EIOSST  ELRTTY  HIMNUQu HLNNRZ
+```
+
+Each die is shuffled randomly and one face is selected, creating a unique board for each game. The "Qu" appears as a single tile (standard Boggle rules).
+
+#### References
+
+- [Bananagrammer: The Boggle cube redesign and its effect on difficulty](http://www.bananagrammer.com/2013/10/the-boggle-cube-redesign-and-its-effect.html)
+- [Boggle - Wikipedia](https://en.wikipedia.org/wiki/Boggle)
 
 ## Multiplayer System
 
