@@ -64,6 +64,9 @@ export default function BoggleGame() {
   // Track game completion for stats
   const lastRecordedGameRef = useRef<string | null>(null);
 
+  // Rotation animation state
+  const [rotationAnimation, setRotationAnimation] = useState<'left' | 'right' | null>(null);
+
   // Ref to track current game phase for use in subscriptions (avoids stale closures)
   const gamePhaseRef = useRef(gamePhase);
   useEffect(() => {
@@ -159,12 +162,21 @@ export default function BoggleGame() {
   }, [submitWord]);
 
   const handleRotateLeft = useCallback(() => {
-    rotateBoard('left');
-  }, [rotateBoard]);
+    if (rotationAnimation) return; // Prevent double-rotation
+    setRotationAnimation('left');
+  }, [rotationAnimation]);
 
   const handleRotateRight = useCallback(() => {
-    rotateBoard('right');
-  }, [rotateBoard]);
+    if (rotationAnimation) return; // Prevent double-rotation
+    setRotationAnimation('right');
+  }, [rotationAnimation]);
+
+  const handleRotationAnimationEnd = useCallback(() => {
+    if (rotationAnimation) {
+      rotateBoard(rotationAnimation);
+      setRotationAnimation(null);
+    }
+  }, [rotationAnimation, rotateBoard]);
 
   // Game mode handlers - all transition to 'loading' phase
   const handlePlaySolo = useCallback(() => {
@@ -342,6 +354,8 @@ export default function BoggleGame() {
             onTileSelect={selectTile}
             onSubmit={handleSubmit}
             disabled={gamePhase === 'gameOver'}
+            rotationAnimation={rotationAnimation}
+            onRotationAnimationEnd={handleRotationAnimationEnd}
           />
 
           <div className="boggle-sidebar">
