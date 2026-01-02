@@ -1,14 +1,14 @@
 // Service Worker for Game Hub PWA
 const CACHE_NAME = 'gamehub-v1';
-const BASE_PATH = '/';
+const BASE_PATH = '/gamehub/';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
   BASE_PATH,
   BASE_PATH + 'index.html',
   BASE_PATH + 'manifest.json',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg',
+  '/gamehub/icons/icon-192.svg',
+  '/gamehub/icons/icon-512.svg',
 ];
 
 // Install event - cache static assets
