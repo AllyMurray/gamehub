@@ -186,15 +186,18 @@
   color: var(--color-text-secondary);
 }
 
-/* Multiplayer Badge */
-.multiplayer-badge {
+/* Game Badges */
+.game-badges {
   position: absolute;
   top: 1rem;
   right: 1.25rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.game-badge {
   padding: 0.3rem 0.7rem;
   background: transparent;
-  border: 1px solid var(--color-correct);
-  color: var(--color-correct);
   border-radius: var(--radius-full);
   font-size: 0.65rem;
   font-weight: 600;
@@ -203,7 +206,22 @@
   transition: all var(--transition-base);
 }
 
-.game-card:hover .multiplayer-badge {
+.game-badge.single-player {
+  border: 1px solid var(--color-text-muted);
+  color: var(--color-text-muted);
+}
+
+.game-badge.multiplayer {
+  border: 1px solid var(--color-correct);
+  color: var(--color-correct);
+}
+
+.game-card:hover .game-badge.single-player {
+  background: var(--color-text-muted);
+  color: var(--color-bg-primary);
+}
+
+.game-card:hover .game-badge.multiplayer {
   background: var(--color-correct);
   color: white;
 }
@@ -260,7 +278,7 @@
     font-size: 1.15rem;
   }
 
-  .multiplayer-badge {
+  .game-badge {
     font-size: 0.6rem;
     padding: 0.25rem 0.5rem;
   }
@@ -276,7 +294,7 @@
     height: 48px;
   }
 
-  .multiplayer-badge {
+  .game-badges {
     position: static;
     margin-top: 0.75rem;
     grid-column: 1 / -1;
@@ -339,7 +357,7 @@
   .game-icon,
   .game-name,
   .game-description,
-  .multiplayer-badge {
+  .game-badge {
     transition: none;
   }
 

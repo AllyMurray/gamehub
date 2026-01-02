@@ -16,6 +16,7 @@ export interface GameMetadata {
   description: string;
   icon: string;
   route: string;
+  supportsSinglePlayer: boolean;
   supportsMultiplayer: boolean;
 }
 

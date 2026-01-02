@@ -11,6 +11,7 @@ export const gameRegistry: GameMetadata[] = [
     description: 'Guess the 5-letter word in 6 tries',
     icon: '🟩',
     route: '/wordle',
+    supportsSinglePlayer: true,
     supportsMultiplayer: true,
   },
   {
@@ -19,6 +20,7 @@ export const gameRegistry: GameMetadata[] = [
     description: 'Find as many words as you can in 3 minutes',
     icon: '🔤',
     route: '/boggle',
+    supportsSinglePlayer: true,
     supportsMultiplayer: true,
   },
 ];

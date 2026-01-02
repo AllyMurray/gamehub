@@ -19,9 +19,14 @@ export function Dashboard() {
             <span className="game-icon">{game.icon}</span>
             <h2 className="game-name">{game.name}</h2>
             <p className="game-description">{game.description}</p>
-            {game.supportsMultiplayer && (
-              <span className="multiplayer-badge">Multiplayer</span>
-            )}
+            <div className="game-badges">
+              {game.supportsSinglePlayer && (
+                <span className="game-badge single-player">Single Player</span>
+              )}
+              {game.supportsMultiplayer && (
+                <span className="game-badge multiplayer">Multiplayer</span>
+              )}
+            </div>
           </Link>
         ))}
       </main>
