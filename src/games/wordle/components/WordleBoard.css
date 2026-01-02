@@ -17,11 +17,13 @@
   justify-content: center;
   font-size: 2rem;
   font-weight: bold;
+  line-height: 1;
   text-transform: uppercase;
   border: 2px solid var(--color-border-primary);
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   user-select: none;
+  will-change: transform;
 }
 
 .wordle-tile--empty {
