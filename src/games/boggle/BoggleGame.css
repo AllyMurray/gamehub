@@ -20,13 +20,22 @@
   color: var(--color-text-secondary);
 }
 
-/* Unified game bar - timer, controls, and score in balanced row */
+/* Unified game bar - stacked rows for stats and controls */
 .boggle-game-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 320px;
+}
+
+/* Top row: Timer and Score */
+.boggle-stats-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 400px;
   gap: var(--space-3);
 }
 
@@ -38,7 +47,7 @@
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-primary);
-  min-width: 90px;
+  flex: 1;
   text-align: center;
 }
 
@@ -46,23 +55,24 @@
   color: var(--color-correct);
 }
 
-/* Game controls */
+/* Bottom row: Controls */
 .boggle-controls {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  width: 100%;
   gap: var(--space-2);
 }
 
 .control-btn {
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-family-display);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   background: var(--color-bg-secondary);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-primary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-base);
   text-transform: uppercase;
@@ -85,16 +95,16 @@
 }
 
 .rotate-btn {
-  padding: var(--space-1) var(--space-2);
-  min-width: 32px;
+  flex: 1;
 }
 
 .rotate-icon {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-lg);
   line-height: 1;
 }
 
 .new-game-btn {
+  flex: 2;
   background: var(--color-present);
   color: white;
   border-color: var(--color-present);

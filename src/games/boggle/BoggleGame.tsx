@@ -312,7 +312,12 @@ export default function BoggleGame() {
         )}
 
         <div className="boggle-game-bar">
-          <Timer timeRemaining={timeRemaining} />
+          <div className="boggle-stats-row">
+            <Timer timeRemaining={timeRemaining} />
+            <div className="score-display">
+              <strong>{score}</strong> pts
+            </div>
+          </div>
           <div className="boggle-controls">
             <button
               className="control-btn rotate-btn"
@@ -328,7 +333,7 @@ export default function BoggleGame() {
               onClick={handleNewGame}
               aria-label="Start a new game"
             >
-              New
+              New Game
             </button>
             <button
               className="control-btn rotate-btn"
@@ -339,9 +344,6 @@ export default function BoggleGame() {
             >
               <span className="rotate-icon">↻</span>
             </button>
-          </div>
-          <div className="score-display">
-            <strong>{score}</strong> pts
           </div>
         </div>
 
