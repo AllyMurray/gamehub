@@ -4,14 +4,15 @@
   border-radius: var(--radius-md);
   padding: var(--space-3);
   overflow-y: auto;
-  min-height: 200px;
-  max-height: 320px;
+  flex: 1;
+  min-height: 0;
 }
 
 @media (max-width: 640px) {
   .word-list {
     min-height: 100px;
-    max-height: 150px;
+    max-height: 160px;
+    flex: none;
   }
 }
 

@@ -348,6 +348,9 @@ export default function BoggleGame() {
         </div>
 
         <div className="boggle-content">
+          <div className={`current-word${currentWord ? '' : ' current-word--empty'}`}>
+            {currentWord || '\u00A0'}
+          </div>
           <BoggleBoard
             board={board}
             selectedPath={currentPath}
@@ -357,8 +360,8 @@ export default function BoggleGame() {
             disabled={gamePhase === 'gameOver'}
             rotationAnimation={rotationAnimation}
             onRotationAnimationEnd={handleRotationAnimationEnd}
+            showCurrentWord={false}
           />
-
           <div className="boggle-sidebar">
             <WordList words={foundWords} totalScore={score} />
           </div>
