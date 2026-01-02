@@ -17,6 +17,10 @@
   border-radius: var(--radius-sm);
 }
 
+.current-word--empty {
+  visibility: hidden;
+}
+
 .boggle-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
