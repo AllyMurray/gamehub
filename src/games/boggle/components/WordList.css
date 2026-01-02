@@ -1,5 +1,6 @@
 .word-list {
   background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
   border-radius: var(--radius-md);
   padding: var(--space-4);
   max-height: 300px;
@@ -10,26 +11,35 @@
 .word-list--empty {
   text-align: center;
   color: var(--color-text-secondary);
+  font-family: var(--font-family);
 }
 
 .word-list--empty .hint {
   font-size: var(--font-size-sm);
   margin-top: var(--space-2);
+  opacity: 0.8;
 }
 
 .word-list__header {
   display: flex;
   justify-content: space-between;
   margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .word-list__title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--color-text-secondary);
 }
 
 .word-list__score {
-  font-weight: bold;
+  font-family: var(--font-family-display);
+  font-weight: 700;
   color: var(--color-correct);
 }
 
@@ -45,18 +55,26 @@
 .word-list__item {
   display: flex;
   justify-content: space-between;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   background: var(--color-bg-primary);
+  transition: background-color var(--transition-fast);
+}
+
+.word-list__item:hover {
+  background: var(--color-bg-tertiary);
 }
 
 .word-list__word {
-  font-weight: 500;
+  font-family: var(--font-family-display);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  color: var(--color-text-primary);
 }
 
 .word-list__points {
+  font-family: var(--font-family-display);
   color: var(--color-correct);
-  font-weight: bold;
+  font-weight: 700;
 }

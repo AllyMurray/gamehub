@@ -13,6 +13,7 @@
   align-items: center;
   justify-content: center;
   min-height: 200px;
+  font-family: var(--font-family);
   font-size: var(--font-size-lg);
   color: var(--color-text-secondary);
 }
@@ -26,10 +27,13 @@
 }
 
 .score-display {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
+  font-weight: 600;
   padding: var(--space-2) var(--space-4);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-primary);
 }
 
 .score-display strong {
@@ -68,20 +72,37 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--color-bg-primary);
-  border: 2px solid var(--color-border-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: var(--radius-lg);
   padding: var(--space-8);
   text-align: center;
   z-index: var(--z-modal);
-  box-shadow: 0 4px 20px var(--color-overlay);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  animation: slideIn var(--transition-base);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translate(-50%, -50%) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) translateY(0);
+    opacity: 1;
+  }
 }
 
 .game-over-panel h2 {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-3xl);
+  font-weight: 700;
   margin: 0 0 var(--space-4);
+  letter-spacing: 0.02em;
 }
 
 .game-over-panel p {
+  font-family: var(--font-family);
   font-size: var(--font-size-lg);
   margin: var(--space-2) 0;
 }
@@ -93,23 +114,29 @@
 .play-again-btn {
   margin-top: var(--space-4);
   padding: var(--space-3) var(--space-6);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-md);
-  font-weight: bold;
+  font-weight: 600;
   background: var(--color-correct);
   color: white;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .play-again-btn:hover {
   background: var(--color-correct-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--color-correct-glow);
 }
 
 /* Connection status styles for multiplayer */
 .connection-status {
   background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-5);
   width: 100%;
@@ -132,17 +159,17 @@
   background-color: var(--color-bg-tertiary);
   color: var(--color-present);
   padding: 6px var(--space-3);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-family-mono);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
-  font-weight: bold;
-  letter-spacing: 0.2rem;
+  font-weight: 600;
+  letter-spacing: 0.15rem;
 }
 
 .session-pin-indicator {
   font-size: var(--font-size-base);
   cursor: help;
-  filter: drop-shadow(0 0 2px rgba(181, 159, 59, 0.5));
+  filter: drop-shadow(0 0 2px var(--color-present-glow));
 }
 
 /* Share buttons */
@@ -154,9 +181,10 @@
 .share-btn {
   border: none;
   padding: 6px var(--space-3);
+  font-family: var(--font-family);
   font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-base);
 }
@@ -186,27 +214,44 @@
 
 .viewer-label {
   color: var(--color-text-primary);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-base);
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .partner-status {
   font-size: var(--font-size-sm);
+  font-weight: 500;
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
 }
 
 .partner-status.connected {
-  background-color: rgba(83, 141, 78, 0.2);
+  background-color: var(--color-correct-glow);
   color: var(--color-correct);
 }
 
 .partner-status.waiting {
-  background-color: rgba(181, 159, 59, 0.2);
+  background-color: var(--color-present-glow);
   color: var(--color-present);
 }
 
 .partner-status.error {
-  background-color: rgba(255, 100, 100, 0.2);
+  background-color: rgba(232, 90, 80, 0.2);
   color: var(--color-error);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .game-over-panel {
+    animation: none;
+  }
+
+  .play-again-btn:hover {
+    transform: none;
+  }
+
+  .share-btn:active {
+    transform: none;
+  }
 }

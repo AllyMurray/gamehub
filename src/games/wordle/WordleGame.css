@@ -17,9 +17,11 @@
   color: var(--message-text);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
-  font-weight: bold;
+  font-family: var(--font-family-display);
+  font-weight: 600;
   z-index: var(--z-dropdown);
   animation: fadeIn 0.2s ease-out;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .game-message--won {
@@ -40,18 +42,23 @@
 
 .play-again-btn {
   padding: 0.75rem 2rem;
+  font-family: var(--font-family-display);
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: 600;
   background: var(--color-correct);
   color: white;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .play-again-btn:hover {
   background: var(--color-correct-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--color-correct-glow);
 }
 
 /* Stats button */
@@ -59,10 +66,11 @@
   background: none;
   border: none;
   color: var(--color-text-secondary);
+  font-family: var(--font-family);
   font-size: var(--font-size-base);
   cursor: pointer;
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   transition: all var(--transition-base);
   min-width: 70px;
 }
@@ -75,6 +83,7 @@
 /* Connection status styles */
 .connection-status {
   background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-5);
   width: 100%;
@@ -97,17 +106,17 @@
   background-color: var(--color-bg-tertiary);
   color: var(--color-present);
   padding: 6px var(--space-3);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-family-mono);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
-  font-weight: bold;
-  letter-spacing: 0.2rem;
+  font-weight: 600;
+  letter-spacing: 0.15rem;
 }
 
 .session-pin-indicator {
   font-size: var(--font-size-base);
   cursor: help;
-  filter: drop-shadow(0 0 2px rgba(181, 159, 59, 0.5));
+  filter: drop-shadow(0 0 2px var(--color-present-glow));
 }
 
 /* Share buttons */
@@ -119,9 +128,10 @@
 .share-btn {
   border: none;
   padding: 6px var(--space-3);
+  font-family: var(--font-family);
   font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-base);
 }
@@ -151,28 +161,30 @@
 
 .viewer-label {
   color: var(--color-text-primary);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-base);
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .partner-status {
   font-size: var(--font-size-sm);
+  font-weight: 500;
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
 }
 
 .partner-status.connected {
-  background-color: rgba(83, 141, 78, 0.2);
+  background-color: var(--color-correct-glow);
   color: var(--color-correct);
 }
 
 .partner-status.waiting {
-  background-color: rgba(181, 159, 59, 0.2);
+  background-color: var(--color-present-glow);
   color: var(--color-present);
 }
 
 .partner-status.error {
-  background-color: rgba(255, 100, 100, 0.2);
+  background-color: rgba(232, 90, 80, 0.2);
   color: var(--color-error);
 }
 
@@ -182,7 +194,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  background-color: rgba(181, 159, 59, 0.15);
+  background-color: var(--color-present-glow);
   border: 1px solid var(--color-present);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-5);
@@ -211,11 +223,11 @@
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-primary);
   padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-family-mono);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
-  font-weight: bold;
-  letter-spacing: 0.3rem;
+  font-weight: 600;
+  letter-spacing: 0.25rem;
   text-transform: uppercase;
 }
 
@@ -227,16 +239,17 @@
 .suggestion-btn {
   border: none;
   padding: var(--space-2) var(--space-4);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-base);
-  font-weight: bold;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-base);
 }
 
 .suggestion-btn.accept {
   background-color: var(--color-correct);
-  color: var(--color-text-primary);
+  color: white;
 }
 
 .suggestion-btn.accept:hover {
@@ -251,4 +264,17 @@
 .suggestion-btn.reject:hover {
   background-color: var(--color-bg-elevated);
   color: var(--color-text-primary);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .game-message,
+  .suggestion-panel {
+    animation: none;
+  }
+
+  .play-again-btn:hover,
+  .share-btn:active {
+    transform: none;
+  }
 }

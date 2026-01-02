@@ -2,19 +2,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .current-word {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
-  font-weight: bold;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  min-height: 2rem;
-  padding: var(--space-1) var(--space-4);
+  letter-spacing: 0.15em;
+  min-height: 2.5rem;
+  padding: var(--space-2) var(--space-5);
   background: var(--color-present);
   color: white;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px var(--color-present-glow);
 }
 
 .current-word--empty {
@@ -24,10 +26,11 @@
 .boggle-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  padding: var(--space-2);
-  background: var(--color-border-primary);
-  border-radius: var(--radius-md);
+  gap: 6px;
+  padding: var(--space-3);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
   touch-action: none;
   user-select: none;
 }
@@ -47,25 +50,33 @@
   align-items: center;
   justify-content: center;
   background: var(--color-bg-secondary);
-  border: none;
+  border: 2px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
-  font-weight: bold;
+  font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
   position: relative;
-  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
   color: var(--color-text-primary);
 }
 
 .boggle-tile:hover:not(:disabled) {
   background: var(--color-bg-tertiary);
+  border-color: var(--color-present);
 }
 
 .boggle-tile--selected {
   background: var(--color-present);
+  border-color: var(--color-present);
   color: white;
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px var(--color-present-glow);
 }
 
 .boggle-tile:disabled {
@@ -82,7 +93,8 @@
   top: 4px;
   right: 6px;
   font-size: var(--font-size-xs);
-  opacity: 0.8;
+  font-weight: 600;
+  opacity: 0.7;
   pointer-events: none;
 }
 
@@ -92,5 +104,16 @@
     width: 60px;
     height: 60px;
     font-size: var(--font-size-xl);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .boggle-tile {
+    transition: none;
+  }
+
+  .boggle-tile--selected {
+    transform: none;
   }
 }

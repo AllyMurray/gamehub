@@ -9,6 +9,16 @@
   position: relative;
 }
 
+/* Ambient background glow */
+.lobby::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--glow-ambient);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .lobby-header {
   position: absolute;
   top: var(--space-4);
@@ -17,20 +27,23 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 1;
 }
 
 .lobby-back-btn {
   background: none;
   border: none;
   color: var(--color-text-primary);
+  font-family: var(--font-family);
   font-size: var(--font-size-base);
   cursor: pointer;
   padding: var(--space-2);
-  transition: opacity var(--transition-base);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-base);
 }
 
 .lobby-back-btn:hover {
-  opacity: 0.7;
+  background: var(--color-bg-secondary);
 }
 
 .lobby-theme-toggle {
@@ -44,12 +57,15 @@
   gap: var(--space-6);
   max-width: 400px;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .lobby-title {
-  font-size: var(--font-size-5xl);
-  font-weight: bold;
-  letter-spacing: 0.3rem;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-primary);
   margin: 0;
@@ -71,33 +87,42 @@
 
 .lobby-btn {
   padding: var(--space-4) var(--space-8);
-  font-size: var(--font-size-lg);
-  font-weight: bold;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-md);
+  font-weight: 600;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-base);
   text-transform: uppercase;
-  letter-spacing: 0.1rem;
+  letter-spacing: 0.08em;
 }
 
 .lobby-btn:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .lobby-btn:active {
-  transform: scale(0.98);
+  transform: translateY(0);
 }
 
 .lobby-btn.primary {
   background-color: var(--color-correct);
-  color: var(--color-text-primary);
+  color: white;
+}
+
+.lobby-btn.primary:hover {
+  background-color: var(--color-correct-hover);
 }
 
 .lobby-btn.host {
   background-color: var(--color-present);
-  color: var(--color-text-primary);
+  color: white;
+}
+
+.lobby-btn.host:hover {
+  background-color: var(--color-present-hover);
 }
 
 .lobby-btn.join {
@@ -105,21 +130,35 @@
   color: var(--color-text-primary);
 }
 
+.lobby-btn.join:hover {
+  background-color: var(--color-bg-elevated);
+}
+
 .lobby-btn.join-confirm {
   background-color: var(--color-correct);
-  color: var(--color-text-primary);
+  color: white;
   flex: 1;
+}
+
+.lobby-btn.join-confirm:hover {
+  background-color: var(--color-correct-hover);
 }
 
 .lobby-btn.join-confirm:disabled {
   background-color: var(--color-bg-tertiary);
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .lobby-btn.cancel {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-primary);
+}
+
+.lobby-btn.cancel:hover {
+  background-color: var(--color-bg-elevated);
 }
 
 .join-input-container {
@@ -131,26 +170,29 @@
 
 .join-input {
   padding: var(--space-4);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
-  font-weight: bold;
+  font-weight: 600;
   text-align: center;
-  letter-spacing: 0.5rem;
-  border: 2px solid var(--color-border-primary);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-bg-primary);
+  letter-spacing: 0.4rem;
+  border: 2px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
   text-transform: uppercase;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .join-input::placeholder {
   font-size: var(--font-size-md);
   letter-spacing: 0.05rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
 .join-input:focus {
   outline: none;
   border-color: var(--color-correct);
+  box-shadow: 0 0 0 3px var(--color-correct-glow);
 }
 
 .join-input.pin-input {
@@ -185,4 +227,11 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .lobby-btn:hover {
+    transform: none;
+  }
 }

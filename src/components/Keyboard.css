@@ -18,23 +18,27 @@
   min-width: 43px;
   padding: 0 var(--space-3);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background-color: var(--color-key-default);
   color: var(--color-text-primary);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-sm);
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   text-transform: uppercase;
-  transition: background-color var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .key:hover {
-  opacity: 0.9;
+  background-color: var(--color-key-hover);
 }
 
 .key:active {
@@ -48,14 +52,27 @@
 
 .key.correct {
   background-color: var(--color-correct);
+  color: white;
+  box-shadow: 0 2px 8px var(--color-correct-glow);
+}
+
+.key.correct:hover {
+  background-color: var(--color-correct-hover);
 }
 
 .key.present {
   background-color: var(--color-present);
+  color: white;
+  box-shadow: 0 2px 8px var(--color-present-glow);
+}
+
+.key.present:hover {
+  background-color: var(--color-present-hover);
 }
 
 .key.absent {
   background-color: var(--tile-bg-absent);
+  color: white;
 }
 
 .keyboard.disabled {
@@ -82,5 +99,16 @@
 
   .keyboard-row {
     gap: var(--space-1);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .key {
+    transition: none;
+  }
+
+  .key:active {
+    transform: none;
   }
 }

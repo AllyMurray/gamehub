@@ -10,6 +10,7 @@
   align-items: center;
   z-index: var(--z-modal);
   animation: fadeIn var(--transition-base);
+  backdrop-filter: blur(4px);
 }
 
 @keyframes fadeIn {
@@ -24,7 +25,7 @@
 .stats-modal {
   background-color: var(--color-bg-primary);
   border: 1px solid var(--color-border-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-6);
   width: 90%;
   max-width: 400px;
@@ -32,6 +33,7 @@
   overflow-y: auto;
   position: relative;
   animation: slideIn var(--transition-base);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes slideIn {
@@ -57,30 +59,34 @@
   padding: var(--space-1) var(--space-2);
   line-height: 1;
   transition: color var(--transition-base);
+  border-radius: var(--radius-sm);
 }
 
 .stats-close:hover {
   color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
 }
 
 .stats-title {
   text-align: center;
+  font-family: var(--font-family-display);
   font-size: 18px;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--color-text-primary);
   margin: 0 0 var(--space-5);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 }
 
 .stats-subtitle {
   text-align: center;
+  font-family: var(--font-family-display);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   color: var(--color-text-primary);
   margin: var(--space-6) 0 var(--space-3);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 }
 
 .stats-summary {
@@ -96,8 +102,9 @@
 }
 
 .stat-value {
+  font-family: var(--font-family-display);
   font-size: 36px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1;
 }
@@ -123,6 +130,7 @@
 
 .distribution-label {
   width: 14px;
+  font-family: var(--font-family-display);
   font-size: 14px;
   font-weight: 700;
   color: var(--color-text-primary);
@@ -140,6 +148,7 @@
   min-width: 28px;
   display: flex;
   justify-content: flex-end;
+  border-radius: var(--radius-sm);
   transition: width var(--transition-slow);
 }
 
@@ -148,9 +157,14 @@
 }
 
 .distribution-count {
+  font-family: var(--font-family-display);
   font-size: 14px;
   font-weight: 700;
   color: var(--color-text-primary);
+}
+
+.distribution-bar.highlight .distribution-count {
+  color: white;
 }
 
 .stats-breakdown {
@@ -178,5 +192,13 @@
 
   .stats-summary {
     gap: var(--space-2);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .stats-overlay,
+  .stats-modal {
+    animation: none;
   }
 }

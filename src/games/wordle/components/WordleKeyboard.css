@@ -5,6 +5,7 @@
   gap: 6px;
   width: 100%;
   max-width: 500px;
+  padding: var(--space-3);
 }
 
 .keyboard-row {
@@ -19,29 +20,35 @@
   height: 58px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--color-key-default);
   color: var(--color-text-primary);
-  font-size: 1rem;
-  font-weight: bold;
+  font-family: var(--font-family-display);
+  font-size: 0.9rem;
+  font-weight: 600;
   text-transform: uppercase;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
   flex: 1;
   max-width: 43px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .keyboard-key--wide {
   min-width: 65px;
   max-width: 65px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .keyboard-key:hover:not(:disabled) {
-  opacity: 0.9;
+  background: var(--color-key-hover);
 }
 
 .keyboard-key:active:not(:disabled) {
@@ -56,15 +63,25 @@
 .keyboard-key--correct {
   background: var(--color-correct);
   color: white;
+  box-shadow: 0 2px 8px var(--color-correct-glow);
+}
+
+.keyboard-key--correct:hover:not(:disabled) {
+  background: var(--color-correct-hover);
 }
 
 .keyboard-key--present {
   background: var(--color-present);
   color: white;
+  box-shadow: 0 2px 8px var(--color-present-glow);
+}
+
+.keyboard-key--present:hover:not(:disabled) {
+  background: var(--color-present-hover);
 }
 
 .keyboard-key--absent {
-  background: var(--color-absent);
+  background: var(--tile-bg-absent);
   color: white;
 }
 
@@ -74,16 +91,27 @@
     min-width: 32px;
     max-width: 32px;
     height: 50px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
   }
 
   .keyboard-key--wide {
     min-width: 50px;
     max-width: 50px;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .keyboard-row {
     gap: 4px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .keyboard-key {
+    transition: none;
+  }
+
+  .keyboard-key:active:not(:disabled) {
+    transform: none;
   }
 }
