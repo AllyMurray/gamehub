@@ -23,6 +23,7 @@ export interface BoggleState {
   possibleWords: string[];
   maxScore: number;
   wordsByLength: WordsByLength;
+  highlightedPath: Position[];
 }
 
 export interface TrieNode {

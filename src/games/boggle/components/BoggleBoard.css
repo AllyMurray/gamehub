@@ -102,6 +102,14 @@
   box-shadow: 0 4px 12px var(--color-present-glow);
 }
 
+.boggle-tile--highlighted {
+  background: var(--color-correct);
+  border-color: var(--color-correct);
+  color: white;
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px var(--color-correct-glow);
+}
+
 .boggle-tile:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -163,7 +171,8 @@
     transition: none;
   }
 
-  .boggle-tile--selected {
+  .boggle-tile--selected,
+  .boggle-tile--highlighted {
     transform: none;
   }
 

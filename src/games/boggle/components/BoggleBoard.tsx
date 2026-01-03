@@ -11,6 +11,7 @@ interface BoggleBoardProps {
   disabled?: boolean;
   rotationAnimation?: 'left' | 'right' | null;
   onRotationAnimationEnd?: () => void;
+  highlightedPath?: Position[];
 }
 
 export const BoggleBoard = memo(function BoggleBoard({
@@ -22,6 +23,7 @@ export const BoggleBoard = memo(function BoggleBoard({
   disabled,
   rotationAnimation,
   onRotationAnimationEnd,
+  highlightedPath = [],
 }: BoggleBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -42,6 +44,20 @@ export const BoggleBoard = memo(function BoggleBoard({
       return selectedPath.findIndex((p) => p.row === row && p.col === col);
     },
     [selectedPath]
+  );
+
+  const isHighlighted = useCallback(
+    (row: number, col: number): boolean => {
+      return highlightedPath.some((p) => p.row === row && p.col === col);
+    },
+    [highlightedPath]
+  );
+
+  const getHighlightIndex = useCallback(
+    (row: number, col: number): number => {
+      return highlightedPath.findIndex((p) => p.row === row && p.col === col);
+    },
+    [highlightedPath]
   );
 
   const getTileFromPoint = useCallback(
@@ -164,21 +180,26 @@ export const BoggleBoard = memo(function BoggleBoard({
               {row.map((letter, colIndex) => {
                 const selected = isSelected(rowIndex, colIndex);
                 const selectionIndex = getSelectionIndex(rowIndex, colIndex);
+                const highlighted = isHighlighted(rowIndex, colIndex);
+                const highlightIndex = getHighlightIndex(rowIndex, colIndex);
 
                 return (
                   <button
                     key={colIndex}
-                    className={`boggle-tile ${selected ? 'boggle-tile--selected' : ''}`}
+                    className={`boggle-tile ${selected ? 'boggle-tile--selected' : ''} ${highlighted ? 'boggle-tile--highlighted' : ''}`}
                     data-row={rowIndex}
                     data-col={colIndex}
                     onPointerDown={(e) => handlePointerDown(e, rowIndex, colIndex)}
                     disabled={disabled}
                     role="gridcell"
-                    aria-label={`${letter}${selected ? ', selected' : ''}`}
+                    aria-label={`${letter}${selected ? ', selected' : ''}${highlighted ? ', highlighted' : ''}`}
                   >
                     <span className="boggle-tile__letter">{letter}</span>
                     {selected && (
                       <span className="boggle-tile__index">{selectionIndex + 1}</span>
+                    )}
+                    {highlighted && !selected && (
+                      <span className="boggle-tile__index">{highlightIndex + 1}</span>
                     )}
                   </button>
                 );
