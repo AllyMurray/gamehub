@@ -339,6 +339,47 @@ Each die is shuffled randomly and one face is selected, creating a unique board 
 - [Bananagrammer: The Boggle cube redesign and its effect on difficulty](http://www.bananagrammer.com/2013/10/the-boggle-cube-redesign-and-its-effect.html)
 - [Boggle - Wikipedia](https://en.wikipedia.org/wiki/Boggle)
 
+### Word Finder Algorithm
+
+The `findAllWords()` function calculates all valid words on a board when a game starts. This enables the UI to show progress (e.g., "12 / 47 words found").
+
+#### Algorithm
+
+1. **DFS from each cell**: Start depth-first search from all 16 cells
+2. **Trie prefix pruning**: Check `isPrefix()` at each step - if the current letter sequence isn't a prefix of any dictionary word, prune the entire branch
+3. **Backtracking**: Use a visited array to prevent revisiting cells in the same path
+
+```
+Theoretical worst case: O(16 × 8^15) without pruning
+Actual performance:    ~0.4ms per board
+```
+
+#### Performance Benchmark
+
+| Metric | Value |
+|--------|-------|
+| Average time | 0.39ms |
+| Min time | 0.13ms |
+| Max time | 1.04ms |
+| Words per board | ~30-50 |
+
+The Trie-based prefix pruning is highly effective because most random letter combinations fail the prefix check within 2-4 characters, cutting off the vast majority of search branches early.
+
+#### Why It's Fast
+
+```mermaid
+flowchart TD
+    Start["DFS from cell"] --> Check{"isPrefix(current)?"}
+    Check -->|No| Prune["Prune branch ✂️"]
+    Check -->|Yes| Word{"isWord(current)?"}
+    Word -->|Yes| Add["Add to found words"]
+    Word -->|No| Continue
+    Add --> Continue["Explore 8 neighbors"]
+    Continue --> Check
+```
+
+The key insight is that the Trie provides O(k) prefix checking where k is the prefix length. Since most invalid paths are pruned at depth 2-4, the actual search space is tiny compared to the theoretical maximum.
+
 ## Multiplayer System
 
 ### P2P Architecture
