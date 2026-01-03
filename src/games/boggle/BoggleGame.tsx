@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBoggleStore } from './store';
 import { useTimerStore } from '../../stores/timerStore';
-import { BoggleBoard, Timer, WordList } from './components';
+import { BoggleBoard, Timer, WordList, AllWordsList } from './components';
 import { GameLayout } from '../../components/GameLayout/GameLayout';
 import Lobby from '../../components/Lobby';
 import ErrorBoundary from '../../components/ErrorBoundary';
@@ -38,6 +38,8 @@ export default function BoggleGame() {
   const score = useBoggleStore((s) => s.score);
   const maxScore = useBoggleStore((s) => s.maxScore);
   const wordsByLength = useBoggleStore((s) => s.wordsByLength);
+  const possibleWords = useBoggleStore((s) => s.possibleWords);
+  const highlightedPath = useBoggleStore((s) => s.highlightedPath);
 
   const initGame = useBoggleStore((s) => s.initGame);
   const selectTile = useBoggleStore((s) => s.selectTile);
@@ -45,6 +47,8 @@ export default function BoggleGame() {
   const endGame = useBoggleStore((s) => s.endGame);
   const resetGame = useBoggleStore((s) => s.resetGame);
   const rotateBoard = useBoggleStore((s) => s.rotateBoard);
+  const highlightWord = useBoggleStore((s) => s.highlightWord);
+  const clearHighlight = useBoggleStore((s) => s.clearHighlight);
 
   // Timer store state
   const timeRemaining = useTimerStore((s) => s.timeRemaining);
@@ -161,6 +165,7 @@ export default function BoggleGame() {
   }, [stopTimer, resetGame, leaveSession]);
 
   const handleNewGame = useCallback(() => {
+    setSelectedWord(null);
     setGamePhase('loading');
   }, []);
 
@@ -170,6 +175,9 @@ export default function BoggleGame() {
 
   // Rotation animation state
   const [rotationAnimation, setRotationAnimation] = useState<'left' | 'right' | null>(null);
+
+  // Track selected word for highlighting in game over state
+  const [selectedWord, setSelectedWord] = useState<string | null>(null);
 
   const handleRotateLeft = useCallback(() => {
     if (rotationAnimation) return; // Prevent double-click during animation
@@ -187,6 +195,19 @@ export default function BoggleGame() {
       setRotationAnimation(null);
     }
   }, [rotationAnimation, rotateBoard]);
+
+  // Handle word selection for highlighting
+  const handleWordSelect = useCallback(
+    (word: string | null) => {
+      setSelectedWord(word);
+      if (word) {
+        highlightWord(word);
+      } else {
+        clearHighlight();
+      }
+    },
+    [highlightWord, clearHighlight]
+  );
 
   // Game mode handlers
   const handlePlaySolo = useCallback(() => {
@@ -444,9 +465,19 @@ export default function BoggleGame() {
             disabled={gamePhase === 'gameOver'}
             rotationAnimation={rotationAnimation}
             onRotationAnimationEnd={handleRotationAnimationEnd}
+            highlightedPath={highlightedPath}
           />
           <div className="boggle-sidebar">
-            <WordList words={foundWords} totalScore={score} />
+            {gamePhase === 'gameOver' ? (
+              <AllWordsList
+                possibleWords={possibleWords}
+                foundWords={foundWords}
+                selectedWord={selectedWord}
+                onWordSelect={handleWordSelect}
+              />
+            ) : (
+              <WordList words={foundWords} totalScore={score} />
+            )}
           </div>
         </div>
 

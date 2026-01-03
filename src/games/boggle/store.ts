@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import type { BoggleState, Position, WordsByLength } from './types';
 import { generateBoard } from './board';
-import { validateWord, getWordFromPath, canFormWord, findAllWords } from './solver';
+import { validateWord, getWordFromPath, canFormWord, findAllWords, findWordPath } from './solver';
 import { calculateWordScore, calculateTotalScore } from './scoring';
 import { loadDictionary, isDictionaryLoaded, isWord } from './dictionary';
 
@@ -40,6 +40,8 @@ interface BoggleStoreState extends BoggleState {
   endGame: () => void;
   resetGame: () => void;
   rotateBoard: (direction: 'left' | 'right') => void;
+  highlightWord: (word: string) => void;
+  clearHighlight: () => void;
 
   // State getters
   getState: () => BoggleState;
@@ -58,6 +60,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
     possibleWords: [],
     maxScore: 0,
     wordsByLength: {},
+    highlightedPath: [],
 
     initGame: async () => {
       set({ isLoading: true });
@@ -86,6 +89,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
         possibleWords,
         maxScore,
         wordsByLength,
+        highlightedPath: [],
       });
     },
 
@@ -237,6 +241,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
         possibleWords: [],
         maxScore: 0,
         wordsByLength: {},
+        highlightedPath: [],
       });
     },
 
@@ -276,10 +281,24 @@ export const useBoggleStore = create<BoggleStoreState>()(
       });
     },
 
+    highlightWord: (word: string) => {
+      const { board } = get();
+      if (!board) return;
+
+      const path = findWordPath(board, word);
+      if (path) {
+        set({ highlightedPath: path });
+      }
+    },
+
+    clearHighlight: () => {
+      set({ highlightedPath: [] });
+    },
+
     getState: () => {
-      const { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore, wordsByLength } =
+      const { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore, wordsByLength, highlightedPath } =
         get();
-      return { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore, wordsByLength };
+      return { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore, wordsByLength, highlightedPath };
     },
   }))
 );
