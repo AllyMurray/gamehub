@@ -5,9 +5,8 @@
 }
 
 .boggle-board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: auto repeat(4, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   padding: var(--space-3);
   background: var(--color-bg-tertiary);
@@ -17,9 +16,15 @@
   user-select: none;
 }
 
-/* Current word spans all 4 columns at top of grid */
+.boggle-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 6px;
+}
+
+/* Current word display at top */
 .current-word {
-  grid-column: 1 / -1;
   font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
   font-weight: 700;
@@ -104,11 +109,10 @@
 
 .boggle-tile__letter {
   pointer-events: none;
-  display: inline-block;
 }
 
-/* Letter rotation animations */
-@keyframes rotate-letter-left {
+/* Grid rotation animations */
+@keyframes rotate-grid-left {
   0% {
     transform: rotate(0deg);
   }
@@ -117,7 +121,7 @@
   }
 }
 
-@keyframes rotate-letter-right {
+@keyframes rotate-grid-right {
   0% {
     transform: rotate(0deg);
   }
@@ -126,12 +130,12 @@
   }
 }
 
-.boggle-tile__letter--rotate-left {
-  animation: rotate-letter-left 0.25s ease-in-out forwards;
+.boggle-tiles-grid--rotate-left {
+  animation: rotate-grid-left 0.3s ease-in-out forwards;
 }
 
-.boggle-tile__letter--rotate-right {
-  animation: rotate-letter-right 0.25s ease-in-out forwards;
+.boggle-tiles-grid--rotate-right {
+  animation: rotate-grid-right 0.3s ease-in-out forwards;
 }
 
 .boggle-tile__index {
@@ -163,8 +167,8 @@
     transform: none;
   }
 
-  .boggle-tile__letter--rotate-left,
-  .boggle-tile__letter--rotate-right {
+  .boggle-tiles-grid--rotate-left,
+  .boggle-tiles-grid--rotate-right {
     animation: none;
   }
 }

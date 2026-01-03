@@ -155,37 +155,37 @@ export const BoggleBoard = memo(function BoggleBoard({
         <div className={`current-word${currentWord ? '' : ' current-word--empty'}`}>
           {currentWord || '\u00A0'}
         </div>
-        {board.grid.map((row, rowIndex) => (
-          <div key={rowIndex} className="boggle-row" role="row">
-            {row.map((letter, colIndex) => {
-              const selected = isSelected(rowIndex, colIndex);
-              const selectionIndex = getSelectionIndex(rowIndex, colIndex);
+        <div
+          className={`boggle-tiles-grid${rotationAnimation ? ` boggle-tiles-grid--rotate-${rotationAnimation}` : ''}`}
+          onAnimationEnd={onRotationAnimationEnd}
+        >
+          {board.grid.map((row, rowIndex) => (
+            <div key={rowIndex} className="boggle-row" role="row">
+              {row.map((letter, colIndex) => {
+                const selected = isSelected(rowIndex, colIndex);
+                const selectionIndex = getSelectionIndex(rowIndex, colIndex);
 
-              return (
-                <button
-                  key={colIndex}
-                  className={`boggle-tile ${selected ? 'boggle-tile--selected' : ''}`}
-                  data-row={rowIndex}
-                  data-col={colIndex}
-                  onPointerDown={(e) => handlePointerDown(e, rowIndex, colIndex)}
-                  disabled={disabled}
-                  role="gridcell"
-                  aria-label={`${letter}${selected ? ', selected' : ''}`}
-                >
-                  <span
-                    className={`boggle-tile__letter${rotationAnimation ? ` boggle-tile__letter--rotate-${rotationAnimation}` : ''}`}
-                    onAnimationEnd={rowIndex === 0 && colIndex === 0 ? onRotationAnimationEnd : undefined}
+                return (
+                  <button
+                    key={colIndex}
+                    className={`boggle-tile ${selected ? 'boggle-tile--selected' : ''}`}
+                    data-row={rowIndex}
+                    data-col={colIndex}
+                    onPointerDown={(e) => handlePointerDown(e, rowIndex, colIndex)}
+                    disabled={disabled}
+                    role="gridcell"
+                    aria-label={`${letter}${selected ? ', selected' : ''}`}
                   >
-                    {letter}
-                  </span>
-                  {selected && (
-                    <span className="boggle-tile__index">{selectionIndex + 1}</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        ))}
+                    <span className="boggle-tile__letter">{letter}</span>
+                    {selected && (
+                      <span className="boggle-tile__index">{selectionIndex + 1}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
