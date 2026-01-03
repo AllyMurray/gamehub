@@ -164,6 +164,9 @@ export default function BoggleGame() {
     setGamePhase('lobby');
   }, [stopTimer, resetGame, leaveSession]);
 
+  // Track selected word for highlighting in game over state
+  const [selectedWord, setSelectedWord] = useState<string | null>(null);
+
   const handleNewGame = useCallback(() => {
     setSelectedWord(null);
     setGamePhase('loading');
@@ -175,9 +178,6 @@ export default function BoggleGame() {
 
   // Rotation animation state
   const [rotationAnimation, setRotationAnimation] = useState<'left' | 'right' | null>(null);
-
-  // Track selected word for highlighting in game over state
-  const [selectedWord, setSelectedWord] = useState<string | null>(null);
 
   const handleRotateLeft = useCallback(() => {
     if (rotationAnimation) return; // Prevent double-click during animation
