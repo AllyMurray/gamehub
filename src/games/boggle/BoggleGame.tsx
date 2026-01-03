@@ -384,46 +384,49 @@ export default function BoggleGame() {
         )}
 
         <div className="boggle-game-bar">
-          {gamePhase === 'gameOver' && (
-            <div className="game-over-message">
-              <span className="game-over-message__title">
+          <div className="boggle-stats-bar">
+            {gamePhase === 'gameOver' ? (
+              <div className="stats-bar__status stats-bar__status--gameover">
                 {timedMode ? "Time's Up!" : 'Game Over'}
-              </span>
-              <span className="game-over-message__stats">
-                {foundWords.length} / {possibleWords.length} words found
-              </span>
-            </div>
-          )}
-          <div className="boggle-stats-row">
-            {timedMode ? (
+              </div>
+            ) : timedMode ? (
               <Timer timeRemaining={timeRemaining} />
             ) : (
-              <div className="relaxed-indicator">Relaxed Mode</div>
+              <div className="stats-bar__status stats-bar__status--relaxed">Relaxed</div>
             )}
-            <div className="score-display">
-              <strong>{score}</strong> / {maxScore} pts
+            <div className="stats-bar__divider" />
+            <div className="stats-bar__score">
+              <strong>{score}</strong>
+              <span className="stats-bar__score-max">/{maxScore}</span>
             </div>
-          </div>
-          <div className="boggle-words-breakdown">
-            {Object.keys(wordsByLength)
-              .map(Number)
-              .sort((a, b) => a - b)
-              .map((len) => {
-                const data = wordsByLength[len];
-                if (!data) return null;
-                const isComplete = data.found === data.total;
-                return (
-                  <div
-                    key={len}
-                    className={`words-by-length${isComplete ? ' words-by-length--complete' : ''}`}
-                  >
-                    <span className="words-by-length__label">{len}-letter</span>
-                    <span className="words-by-length__count">
+            <div className="stats-bar__divider" />
+            <div className="stats-bar__words">
+              <span className="stats-bar__words-count">
+                <strong>{foundWords.length}</strong>/{possibleWords.length}
+              </span>
+              <span className="stats-bar__words-label">words</span>
+            </div>
+            <div className="stats-bar__divider stats-bar__divider--mobile-hide" />
+            <div className="stats-bar__breakdown">
+              {Object.keys(wordsByLength)
+                .map(Number)
+                .sort((a, b) => a - b)
+                .map((len, index) => {
+                  const data = wordsByLength[len];
+                  if (!data) return null;
+                  const isComplete = data.found === data.total;
+                  return (
+                    <span
+                      key={len}
+                      className={`stats-bar__len${isComplete ? ' stats-bar__len--complete' : ''}`}
+                    >
+                      {index > 0 && <span className="stats-bar__len-sep">•</span>}
+                      <span className="stats-bar__len-label">{len}L:</span>
                       <strong>{data.found}</strong>/{data.total}
                     </span>
-                  </div>
-                );
-              })}
+                  );
+                })}
+            </div>
           </div>
           <div className="boggle-controls">
             <button
