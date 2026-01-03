@@ -298,23 +298,22 @@
   }
 }
 
-/* Game over banner - inline, non-blocking */
-.game-over-banner {
+/* Game over message - subtle indicator above stats */
+.game-over-message {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-5);
-  background: linear-gradient(135deg, var(--color-correct-glow), var(--color-bg-secondary));
-  border: 2px solid var(--color-correct);
-  border-radius: var(--radius-lg);
-  animation: bannerFadeIn var(--transition-base);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-correct-glow);
+  border-radius: var(--radius-md);
+  animation: messageSlideIn var(--transition-base);
 }
 
-@keyframes bannerFadeIn {
+@keyframes messageSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-5px);
   }
   to {
     opacity: 1;
@@ -322,50 +321,31 @@
   }
 }
 
-.game-over-banner__message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.game-over-banner__title {
+.game-over-message__title {
   font-family: var(--font-family-display);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--color-correct);
   letter-spacing: 0.02em;
 }
 
-.game-over-banner__stats {
+.game-over-message__stats {
   font-family: var(--font-family);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
 
-.game-over-banner__stats strong {
-  color: var(--color-correct);
-  font-weight: 700;
-}
-
-.play-again-btn {
+/* Play Again button in controls */
+.control-btn.play-again-btn {
   padding: var(--space-2) var(--space-4);
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
   background: var(--color-correct);
   color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  border-color: var(--color-correct);
 }
 
-.play-again-btn:hover {
+.control-btn.play-again-btn:hover {
   background: var(--color-correct-hover);
-  transform: translateY(-2px);
+  border-color: var(--color-correct-hover);
   box-shadow: 0 4px 12px var(--color-correct-glow);
 }
 
@@ -477,31 +457,27 @@
   color: var(--color-error);
 }
 
-/* Mobile responsive: stack banner vertically */
+/* Mobile responsive: stack message vertically */
 @media (max-width: 480px) {
-  .game-over-banner {
+  .game-over-message {
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-1);
     padding: var(--space-2) var(--space-3);
   }
 
-  .game-over-banner__title {
-    font-size: var(--font-size-lg);
+  .game-over-message__title {
+    font-size: var(--font-size-sm);
   }
 
-  .game-over-banner__stats {
-    font-size: var(--font-size-sm);
+  .game-over-message__stats {
+    font-size: var(--font-size-xs);
   }
 }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .game-over-banner {
+  .game-over-message {
     animation: none;
-  }
-
-  .play-again-btn:hover {
-    transform: none;
   }
 
   .share-btn:active {
