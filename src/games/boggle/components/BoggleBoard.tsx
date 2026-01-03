@@ -62,33 +62,21 @@ export const BoggleBoard = memo(function BoggleBoard({
 
   const getTileFromPoint = useCallback(
     (x: number, y: number): { row: number; col: number } | null => {
-      const board = boardRef.current;
-      if (!board) return null;
+      // Use elementFromPoint - the browser's native hit-testing
+      // This is more reliable than manual coordinate calculations
+      const element = document.elementFromPoint(x, y);
+      if (!element) return null;
 
-      const rect = board.getBoundingClientRect();
-      const relX = x - rect.left;
-      const relY = y - rect.top;
+      // Find the tile button (could be the button itself or a child like the letter span)
+      const tile = element.closest('.boggle-tile') as HTMLElement | null;
+      if (!tile) return null;
 
-      // Get computed styles for accurate measurements
-      const style = getComputedStyle(board);
-      const padding = parseFloat(style.paddingLeft) || 12; // var(--space-3)
-      const gap = 6; // From CSS
-      const gridSize = 4;
+      const row = tile.dataset.row;
+      const col = tile.dataset.col;
 
-      // Calculate tile size from available space
-      const availableSpace = rect.width - padding * 2;
-      const tileSize = (availableSpace - gap * (gridSize - 1)) / gridSize;
+      if (row === undefined || col === undefined) return null;
 
-      // Calculate which tile based on position
-      const col = Math.floor((relX - padding) / (tileSize + gap));
-      const row = Math.floor((relY - padding) / (tileSize + gap));
-
-      // Validate bounds
-      if (row < 0 || row >= gridSize || col < 0 || col >= gridSize) {
-        return null;
-      }
-
-      return { row, col };
+      return { row: parseInt(row, 10), col: parseInt(col, 10) };
     },
     []
   );
