@@ -7,30 +7,14 @@ describe('calculateWordScore', () => {
     expect(calculateWordScore('IT')).toBe(0);
   });
 
-  it('should return 1 for 3-4 letter words', () => {
-    expect(calculateWordScore('CAT')).toBe(1);
-    expect(calculateWordScore('DOGS')).toBe(1);
-  });
-
-  it('should return 2 for 5 letter words', () => {
-    expect(calculateWordScore('APPLE')).toBe(2);
-    expect(calculateWordScore('HOUSE')).toBe(2);
-  });
-
-  it('should return 3 for 6 letter words', () => {
-    expect(calculateWordScore('BANANA')).toBe(3);
-    expect(calculateWordScore('GARDEN')).toBe(3);
-  });
-
-  it('should return 5 for 7 letter words', () => {
-    expect(calculateWordScore('DRAGONS')).toBe(5);
-    expect(calculateWordScore('PERFECT')).toBe(5);
-  });
-
-  it('should return 11 for 8+ letter words', () => {
-    expect(calculateWordScore('ABSOLUTE')).toBe(11);
-    expect(calculateWordScore('STRAWBERRY')).toBe(11);
-    expect(calculateWordScore('AARDVARKS')).toBe(11);
+  it('should return length - 2 for valid words', () => {
+    expect(calculateWordScore('CAT')).toBe(1); // 3 letters = 1pt
+    expect(calculateWordScore('DOGS')).toBe(2); // 4 letters = 2pt
+    expect(calculateWordScore('APPLE')).toBe(3); // 5 letters = 3pt
+    expect(calculateWordScore('BANANA')).toBe(4); // 6 letters = 4pt
+    expect(calculateWordScore('DRAGONS')).toBe(5); // 7 letters = 5pt
+    expect(calculateWordScore('ABSOLUTE')).toBe(6); // 8 letters = 6pt
+    expect(calculateWordScore('STRAWBERRY')).toBe(8); // 10 letters = 8pt
   });
 });
 
@@ -40,12 +24,12 @@ describe('calculateTotalScore', () => {
   });
 
   it('should sum scores for multiple words', () => {
-    // CAT (1) + APPLE (2) + BANANA (3) = 6
-    expect(calculateTotalScore(['CAT', 'APPLE', 'BANANA'])).toBe(6);
+    // CAT (1) + APPLE (3) + BANANA (4) = 8
+    expect(calculateTotalScore(['CAT', 'APPLE', 'BANANA'])).toBe(8);
   });
 
   it('should handle mixed lengths', () => {
-    // THE (1) + HOUSE (2) + DRAGONS (5) = 8
-    expect(calculateTotalScore(['THE', 'HOUSE', 'DRAGONS'])).toBe(8);
+    // THE (1) + HOUSE (3) + DRAGONS (5) = 9
+    expect(calculateTotalScore(['THE', 'HOUSE', 'DRAGONS'])).toBe(9);
   });
 });

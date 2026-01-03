@@ -36,6 +36,8 @@ export default function BoggleGame() {
   const currentPath = useBoggleStore((s) => s.currentPath);
   const currentWord = useBoggleStore((s) => s.currentWord);
   const score = useBoggleStore((s) => s.score);
+  const possibleWords = useBoggleStore((s) => s.possibleWords);
+  const maxScore = useBoggleStore((s) => s.maxScore);
 
   const initGame = useBoggleStore((s) => s.initGame);
   const selectTile = useBoggleStore((s) => s.selectTile);
@@ -368,7 +370,10 @@ export default function BoggleGame() {
               <div className="relaxed-indicator">Relaxed Mode</div>
             )}
             <div className="score-display">
-              <strong>{score}</strong> pts
+              <strong>{score}</strong> / {maxScore} pts
+            </div>
+            <div className="words-display">
+              <strong>{foundWords.length}</strong> / {possibleWords.length} words
             </div>
           </div>
           <div className="boggle-controls">

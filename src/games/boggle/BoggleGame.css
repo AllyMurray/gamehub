@@ -141,7 +141,8 @@
   gap: var(--space-3);
 }
 
-.score-display {
+.score-display,
+.words-display {
   font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
   font-weight: 600;
@@ -153,7 +154,8 @@
   min-width: 100px;
 }
 
-.score-display strong {
+.score-display strong,
+.words-display strong {
   color: var(--color-correct);
 }
 

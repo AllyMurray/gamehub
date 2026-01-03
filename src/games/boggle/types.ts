@@ -13,6 +13,8 @@ export interface BoggleState {
   score: number;
   gameOver: boolean;
   isLoading: boolean;
+  possibleWords: string[];
+  maxScore: number;
 }
 
 export interface TrieNode {
