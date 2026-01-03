@@ -384,16 +384,32 @@ export default function BoggleGame() {
         )}
 
         <div className="boggle-game-bar">
-          <div className="boggle-stats-row">
-            {timedMode ? (
-              <Timer timeRemaining={timeRemaining} />
-            ) : (
-              <div className="relaxed-indicator">Relaxed Mode</div>
-            )}
-            <div className="score-display">
-              <strong>{score}</strong> / {maxScore} pts
+          {gamePhase === 'gameOver' ? (
+            <div className="game-over-banner">
+              <div className="game-over-banner__message">
+                <span className="game-over-banner__title">
+                  {timedMode ? "Time's Up!" : 'Game Over'}
+                </span>
+                <span className="game-over-banner__stats">
+                  <strong>{score}</strong> pts · {foundWords.length} / {possibleWords.length} words
+                </span>
+              </div>
+              <button className="play-again-btn" onClick={handleNewGame}>
+                Play Again
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="boggle-stats-row">
+              {timedMode ? (
+                <Timer timeRemaining={timeRemaining} />
+              ) : (
+                <div className="relaxed-indicator">Relaxed Mode</div>
+              )}
+              <div className="score-display">
+                <strong>{score}</strong> / {maxScore} pts
+              </div>
+            </div>
+          )}
           <div className="boggle-words-breakdown">
             {Object.keys(wordsByLength)
               .map(Number)
@@ -481,18 +497,6 @@ export default function BoggleGame() {
           </div>
         </div>
 
-        {gamePhase === 'gameOver' && (
-          <div className="game-over-panel">
-            <h2>{timedMode ? "Time's Up!" : 'Game Over'}</h2>
-            <p>
-              Final Score: <strong>{score}</strong>
-            </p>
-            <p>Words Found: {foundWords.length}</p>
-            <button className="play-again-btn" onClick={handleNewGame}>
-              Play Again
-            </button>
-          </div>
-        )}
       </div>
     </GameLayout>
   );
