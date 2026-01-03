@@ -1,10 +1,33 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import type { BoggleState, Position } from './types';
+import type { BoggleState, Position, WordsByLength } from './types';
 import { generateBoard } from './board';
 import { validateWord, getWordFromPath, canFormWord, findAllWords } from './solver';
 import { calculateWordScore, calculateTotalScore } from './scoring';
 import { loadDictionary, isDictionaryLoaded, isWord } from './dictionary';
+
+function calculateWordsByLength(possibleWords: string[], foundWords: string[]): WordsByLength {
+  const result: WordsByLength = {};
+
+  // Count totals by length
+  for (const word of possibleWords) {
+    const len = word.length;
+    if (!result[len]) {
+      result[len] = { found: 0, total: 0 };
+    }
+    result[len].total++;
+  }
+
+  // Count found by length
+  for (const word of foundWords) {
+    const len = word.length;
+    if (result[len]) {
+      result[len].found++;
+    }
+  }
+
+  return result;
+}
 
 interface BoggleStoreState extends BoggleState {
   // Actions
@@ -34,6 +57,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
     isLoading: true,
     possibleWords: [],
     maxScore: 0,
+    wordsByLength: {},
 
     initGame: async () => {
       set({ isLoading: true });
@@ -49,6 +73,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
       // Find all possible words on this board
       const possibleWords = findAllWords(board);
       const maxScore = calculateTotalScore(possibleWords);
+      const wordsByLength = calculateWordsByLength(possibleWords, []);
 
       set({
         board,
@@ -60,6 +85,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
         isLoading: false,
         possibleWords,
         maxScore,
+        wordsByLength,
       });
     },
 
@@ -115,7 +141,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
     },
 
     submitWord: () => {
-      const { board, currentPath, foundWords, score } = get();
+      const { board, currentPath, foundWords, score, possibleWords } = get();
 
       if (!board || currentPath.length < 3) {
         set({ currentPath: [], currentWord: '' });
@@ -137,18 +163,20 @@ export const useBoggleStore = create<BoggleStoreState>()(
 
       // Add word and update score
       const wordScore = calculateWordScore(result.word);
+      const newFoundWords = [...foundWords, result.word];
       set({
-        foundWords: [...foundWords, result.word],
+        foundWords: newFoundWords,
         score: score + wordScore,
         currentPath: [],
         currentWord: '',
+        wordsByLength: calculateWordsByLength(possibleWords, newFoundWords),
       });
 
       return { success: true, word: result.word };
     },
 
     submitWordByText: (word: string) => {
-      const { board, foundWords, score } = get();
+      const { board, foundWords, score, possibleWords } = get();
 
       if (!board) {
         return { success: false, reason: 'Game not initialized' };
@@ -177,11 +205,13 @@ export const useBoggleStore = create<BoggleStoreState>()(
 
       // Add word and update score
       const wordScore = calculateWordScore(upperWord);
+      const newFoundWords = [...foundWords, upperWord];
       set({
-        foundWords: [...foundWords, upperWord],
+        foundWords: newFoundWords,
         score: score + wordScore,
         currentPath: [],
         currentWord: '',
+        wordsByLength: calculateWordsByLength(possibleWords, newFoundWords),
       });
 
       return { success: true, word: upperWord };
@@ -206,6 +236,7 @@ export const useBoggleStore = create<BoggleStoreState>()(
         isLoading: true,
         possibleWords: [],
         maxScore: 0,
+        wordsByLength: {},
       });
     },
 
@@ -246,9 +277,9 @@ export const useBoggleStore = create<BoggleStoreState>()(
     },
 
     getState: () => {
-      const { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore } =
+      const { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore, wordsByLength } =
         get();
-      return { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore };
+      return { board, foundWords, currentPath, currentWord, score, gameOver, isLoading, possibleWords, maxScore, wordsByLength };
     },
   }))
 );

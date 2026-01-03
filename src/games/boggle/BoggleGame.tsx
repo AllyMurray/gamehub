@@ -36,8 +36,8 @@ export default function BoggleGame() {
   const currentPath = useBoggleStore((s) => s.currentPath);
   const currentWord = useBoggleStore((s) => s.currentWord);
   const score = useBoggleStore((s) => s.score);
-  const possibleWords = useBoggleStore((s) => s.possibleWords);
   const maxScore = useBoggleStore((s) => s.maxScore);
+  const wordsByLength = useBoggleStore((s) => s.wordsByLength);
 
   const initGame = useBoggleStore((s) => s.initGame);
   const selectTile = useBoggleStore((s) => s.selectTile);
@@ -372,9 +372,27 @@ export default function BoggleGame() {
             <div className="score-display">
               <strong>{score}</strong> / {maxScore} pts
             </div>
-            <div className="words-display">
-              <strong>{foundWords.length}</strong> / {possibleWords.length} words
-            </div>
+          </div>
+          <div className="boggle-words-breakdown">
+            {Object.keys(wordsByLength)
+              .map(Number)
+              .sort((a, b) => a - b)
+              .map((len) => {
+                const data = wordsByLength[len];
+                if (!data) return null;
+                const isComplete = data.found === data.total;
+                return (
+                  <div
+                    key={len}
+                    className={`words-by-length${isComplete ? ' words-by-length--complete' : ''}`}
+                  >
+                    <span className="words-by-length__label">{len}-letter</span>
+                    <span className="words-by-length__count">
+                      <strong>{data.found}</strong>/{data.total}
+                    </span>
+                  </div>
+                );
+              })}
           </div>
           <div className="boggle-controls">
             <button

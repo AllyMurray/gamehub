@@ -141,8 +141,7 @@
   gap: var(--space-3);
 }
 
-.score-display,
-.words-display {
+.score-display {
   font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
   font-weight: 600;
@@ -154,9 +153,54 @@
   min-width: 100px;
 }
 
-.score-display strong,
-.words-display strong {
+.score-display strong {
   color: var(--color-correct);
+}
+
+/* Words breakdown by length */
+.boggle-words-breakdown {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.words-by-length {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-primary);
+  min-width: 70px;
+}
+
+.words-by-length--complete {
+  background: var(--color-correct-glow);
+  border-color: var(--color-correct);
+}
+
+.words-by-length__label {
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.words-by-length__count {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.words-by-length__count strong {
+  color: var(--color-correct);
+}
+
+.words-by-length--complete .words-by-length__count strong {
+  color: var(--color-text-primary);
 }
 
 /* Bottom row: Controls */

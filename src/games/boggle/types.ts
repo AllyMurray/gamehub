@@ -5,6 +5,13 @@ export interface BoggleBoard {
   size: number;
 }
 
+export interface WordsByLength {
+  [length: number]: {
+    found: number;
+    total: number;
+  };
+}
+
 export interface BoggleState {
   board: BoggleBoard | null;
   foundWords: string[];
@@ -15,6 +22,7 @@ export interface BoggleState {
   isLoading: boolean;
   possibleWords: string[];
   maxScore: number;
+  wordsByLength: WordsByLength;
 }
 
 export interface TrieNode {
