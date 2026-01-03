@@ -9,6 +9,8 @@ interface BoggleBoardProps {
   onTileSelect: (pos: Position) => void;
   onSubmit: () => void;
   disabled?: boolean;
+  rotationAnimation?: 'left' | 'right' | null;
+  onRotationAnimationEnd?: () => void;
 }
 
 export const BoggleBoard = memo(function BoggleBoard({
@@ -18,6 +20,8 @@ export const BoggleBoard = memo(function BoggleBoard({
   onTileSelect,
   onSubmit,
   disabled,
+  rotationAnimation,
+  onRotationAnimationEnd,
 }: BoggleBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -168,7 +172,12 @@ export const BoggleBoard = memo(function BoggleBoard({
                   role="gridcell"
                   aria-label={`${letter}${selected ? ', selected' : ''}`}
                 >
-                  <span className="boggle-tile__letter">{letter}</span>
+                  <span
+                    className={`boggle-tile__letter${rotationAnimation ? ` boggle-tile__letter--rotate-${rotationAnimation}` : ''}`}
+                    onAnimationEnd={rowIndex === 0 && colIndex === 0 ? onRotationAnimationEnd : undefined}
+                  >
+                    {letter}
+                  </span>
                   {selected && (
                     <span className="boggle-tile__index">{selectionIndex + 1}</span>
                   )}

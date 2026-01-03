@@ -104,6 +104,34 @@
 
 .boggle-tile__letter {
   pointer-events: none;
+  display: inline-block;
+}
+
+/* Letter rotation animations */
+@keyframes rotate-letter-left {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-90deg);
+  }
+}
+
+@keyframes rotate-letter-right {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(90deg);
+  }
+}
+
+.boggle-tile__letter--rotate-left {
+  animation: rotate-letter-left 0.25s ease-in-out forwards;
+}
+
+.boggle-tile__letter--rotate-right {
+  animation: rotate-letter-right 0.25s ease-in-out forwards;
 }
 
 .boggle-tile__index {
@@ -133,5 +161,10 @@
 
   .boggle-tile--selected {
     transform: none;
+  }
+
+  .boggle-tile__letter--rotate-left,
+  .boggle-tile__letter--rotate-right {
+    animation: none;
   }
 }

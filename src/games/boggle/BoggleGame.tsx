@@ -166,13 +166,25 @@ export default function BoggleGame() {
     submitWord();
   }, [submitWord]);
 
+  // Rotation animation state
+  const [rotationAnimation, setRotationAnimation] = useState<'left' | 'right' | null>(null);
+
   const handleRotateLeft = useCallback(() => {
-    rotateBoard('left');
-  }, [rotateBoard]);
+    if (rotationAnimation) return; // Prevent double-click during animation
+    setRotationAnimation('left');
+  }, [rotationAnimation]);
 
   const handleRotateRight = useCallback(() => {
-    rotateBoard('right');
-  }, [rotateBoard]);
+    if (rotationAnimation) return; // Prevent double-click during animation
+    setRotationAnimation('right');
+  }, [rotationAnimation]);
+
+  const handleRotationAnimationEnd = useCallback(() => {
+    if (rotationAnimation) {
+      rotateBoard(rotationAnimation);
+      setRotationAnimation(null);
+    }
+  }, [rotationAnimation, rotateBoard]);
 
   // Game mode handlers
   const handlePlaySolo = useCallback(() => {
@@ -407,6 +419,8 @@ export default function BoggleGame() {
             onTileSelect={selectTile}
             onSubmit={handleSubmit}
             disabled={gamePhase === 'gameOver'}
+            rotationAnimation={rotationAnimation}
+            onRotationAnimationEnd={handleRotationAnimationEnd}
           />
           <div className="boggle-sidebar">
             <WordList words={foundWords} totalScore={score} />
