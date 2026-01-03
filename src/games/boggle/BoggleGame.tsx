@@ -384,32 +384,26 @@ export default function BoggleGame() {
         )}
 
         <div className="boggle-game-bar">
-          {gamePhase === 'gameOver' ? (
-            <div className="game-over-banner">
-              <div className="game-over-banner__message">
-                <span className="game-over-banner__title">
-                  {timedMode ? "Time's Up!" : 'Game Over'}
-                </span>
-                <span className="game-over-banner__stats">
-                  <strong>{score}</strong> pts · {foundWords.length} / {possibleWords.length} words
-                </span>
-              </div>
-              <button className="play-again-btn" onClick={handleNewGame}>
-                Play Again
-              </button>
-            </div>
-          ) : (
-            <div className="boggle-stats-row">
-              {timedMode ? (
-                <Timer timeRemaining={timeRemaining} />
-              ) : (
-                <div className="relaxed-indicator">Relaxed Mode</div>
-              )}
-              <div className="score-display">
-                <strong>{score}</strong> / {maxScore} pts
-              </div>
+          {gamePhase === 'gameOver' && (
+            <div className="game-over-message">
+              <span className="game-over-message__title">
+                {timedMode ? "Time's Up!" : 'Game Over'}
+              </span>
+              <span className="game-over-message__stats">
+                {foundWords.length} / {possibleWords.length} words found
+              </span>
             </div>
           )}
+          <div className="boggle-stats-row">
+            {timedMode ? (
+              <Timer timeRemaining={timeRemaining} />
+            ) : (
+              <div className="relaxed-indicator">Relaxed Mode</div>
+            )}
+            <div className="score-display">
+              <strong>{score}</strong> / {maxScore} pts
+            </div>
+          </div>
           <div className="boggle-words-breakdown">
             {Object.keys(wordsByLength)
               .map(Number)
@@ -441,7 +435,15 @@ export default function BoggleGame() {
             >
               <span className="rotate-icon">↺</span>
             </button>
-            {timedMode ? (
+            {gamePhase === 'gameOver' ? (
+              <button
+                className="control-btn play-again-btn"
+                onClick={handleNewGame}
+                aria-label="Play again"
+              >
+                Play Again
+              </button>
+            ) : timedMode ? (
               <button
                 className="control-btn new-game-btn"
                 onClick={handleNewGame}
@@ -453,7 +455,6 @@ export default function BoggleGame() {
               <button
                 className="control-btn end-game-btn"
                 onClick={handleEndGame}
-                disabled={gamePhase === 'gameOver'}
                 aria-label="End current game"
               >
                 End Game
