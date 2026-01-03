@@ -11,7 +11,6 @@ interface BoggleBoardProps {
   disabled?: boolean;
   rotationAnimation?: 'left' | 'right' | null;
   onRotationAnimationEnd?: () => void;
-  showCurrentWord?: boolean;
 }
 
 export const BoggleBoard = memo(function BoggleBoard({
@@ -23,7 +22,6 @@ export const BoggleBoard = memo(function BoggleBoard({
   disabled,
   rotationAnimation,
   onRotationAnimationEnd,
-  showCurrentWord = true,
 }: BoggleBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -146,11 +144,6 @@ export const BoggleBoard = memo(function BoggleBoard({
 
   return (
     <div className="boggle-board-container">
-      {showCurrentWord && (
-        <div className={`current-word${currentWord ? '' : ' current-word--empty'}`}>
-          {currentWord || '\u00A0'}
-        </div>
-      )}
       <div
         ref={boardRef}
         className={`boggle-board ${isSelecting ? 'boggle-board--selecting' : ''}${rotationAnimation === 'left' ? ' boggle-board--rotate-left' : ''}${rotationAnimation === 'right' ? ' boggle-board--rotate-right' : ''}`}
@@ -160,6 +153,9 @@ export const BoggleBoard = memo(function BoggleBoard({
         onPointerUp={handlePointerUp}
         onAnimationEnd={onRotationAnimationEnd}
       >
+        <div className={`current-word${currentWord ? '' : ' current-word--empty'}`}>
+          {currentWord || '\u00A0'}
+        </div>
         {board.grid.map((row, rowIndex) => (
           <div key={rowIndex} className="boggle-row" role="row">
             {row.map((letter, colIndex) => {

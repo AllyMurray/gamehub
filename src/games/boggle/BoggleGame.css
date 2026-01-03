@@ -20,6 +20,110 @@
   color: var(--color-text-secondary);
 }
 
+/* Mode selection screen */
+.mode-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.mode-select h2 {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.mode-select p {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-6);
+  min-width: 160px;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.mode-btn:hover {
+  border-color: var(--color-present);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mode-btn.timed:hover {
+  border-color: var(--color-present);
+}
+
+.mode-btn.untimed:hover {
+  border-color: var(--color-correct);
+}
+
+.mode-icon {
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+}
+
+.mode-label {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.mode-desc {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Relaxed mode indicator */
+.relaxed-indicator {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-correct);
+  color: white;
+  border-radius: var(--radius-md);
+  min-width: 100px;
+  text-align: center;
+}
+
+/* End game button */
+.end-game-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-error);
+  color: white;
+  border-color: var(--color-error);
+}
+
+.end-game-btn:hover:not(:disabled) {
+  background: #c0392b;
+  border-color: #c0392b;
+}
+
 /* Unified game bar - stacked rows for stats and controls */
 .boggle-game-bar {
   display: flex;
@@ -113,81 +217,38 @@
   box-shadow: 0 4px 12px var(--color-present-glow);
 }
 
-/* Main content area - CSS Grid for precise alignment */
+/* Main content area - board and sidebar side by side */
 .boggle-content {
-  display: grid;
-  grid-template-columns: auto 220px;
-  grid-template-rows: auto 1fr;
-  gap: var(--space-3) var(--space-5);
-  align-items: start;
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
   justify-content: center;
   flex: 1;
   min-height: 0;
 }
 
-/* Current word spans both columns, centered */
-.boggle-content > .current-word {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  justify-self: center;
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  min-height: 2.5rem;
-  padding: var(--space-2) var(--space-5);
-  background: var(--color-present);
-  color: white;
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 12px var(--color-present-glow);
-}
-
-.boggle-content > .current-word--empty {
-  visibility: hidden;
-}
-
-/* Board in first column, second row */
-.boggle-content > .boggle-board-container {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-/* Sidebar in second column, second row - aligned with board */
+/* Sidebar next to board */
 .boggle-sidebar {
-  grid-column: 2;
-  grid-row: 2;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  width: 200px;
   min-height: 0;
   align-self: stretch;
 }
 
-/* Mobile: Stack everything vertically */
+/* Mobile: Stack vertically */
 @media (max-width: 640px) {
   .boggle-content {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    justify-items: center;
+    flex-direction: column;
+    align-items: center;
     gap: var(--space-3);
   }
 
-  .boggle-content > .current-word {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .boggle-content > .boggle-board-container {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
   .boggle-sidebar {
-    grid-column: 1;
-    grid-row: 3;
     width: 100%;
     max-width: 320px;
+    align-self: center;
   }
 }
 

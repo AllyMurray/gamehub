@@ -2,30 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-}
-
-.current-word {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  min-height: 2.5rem;
-  padding: var(--space-2) var(--space-5);
-  background: var(--color-present);
-  color: white;
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 12px var(--color-present-glow);
-}
-
-.current-word--empty {
-  visibility: hidden;
 }
 
 .boggle-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto repeat(4, 1fr);
   gap: 6px;
   padding: var(--space-3);
   background: var(--color-bg-tertiary);
@@ -33,6 +15,42 @@
   border-radius: var(--radius-lg);
   touch-action: none;
   user-select: none;
+}
+
+/* Current word spans all 4 columns at top of grid */
+.current-word {
+  grid-column: 1 / -1;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  transition: all var(--transition-fast);
+}
+
+.current-word:not(.current-word--empty) {
+  background: var(--color-present);
+  border-color: var(--color-present);
+  color: white;
+  box-shadow: 0 2px 8px var(--color-present-glow);
+}
+
+.current-word--empty {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.05em;
+}
+
+.current-word--empty::before {
+  content: 'Drag to spell';
 }
 
 .boggle-board--selecting {

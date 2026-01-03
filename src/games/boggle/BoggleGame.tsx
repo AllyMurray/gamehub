@@ -14,18 +14,21 @@ import './BoggleGame.css';
 
 const GAME_DURATION = 180; // 3 minutes
 
-type GamePhase = 'lobby' | 'loading' | 'playing' | 'gameOver';
+type GamePhase = 'lobby' | 'modeSelect' | 'loading' | 'playing' | 'gameOver';
 
 export default function BoggleGame() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [copyFeedback, setCopyFeedback] = useState(false);
 
-  // Game phase state machine: lobby → loading → playing → gameOver
+  // Game phase state machine: lobby → modeSelect → loading → playing → gameOver
   const [gamePhase, setGamePhase] = useState<GamePhase>('lobby');
 
   // Track which mode (solo/multiplayer) for UI purposes
   const [localGameMode, setLocalGameMode] = useState<GameMode>(null);
+
+  // Track if game is timed or untimed
+  const [timedMode, setTimedMode] = useState(true);
 
   // Boggle store state
   const board = useBoggleStore((s) => s.board);
@@ -86,7 +89,9 @@ export default function BoggleGame() {
       .then(() => {
         if (!cancelled) {
           setGamePhase('playing');
-          startTimer(GAME_DURATION);
+          if (timedMode) {
+            startTimer(GAME_DURATION);
+          }
         }
       })
       .catch(() => {
@@ -99,11 +104,13 @@ export default function BoggleGame() {
     return () => {
       cancelled = true;
     };
-  }, [gamePhase, initGame, startTimer]);
+  }, [gamePhase, initGame, startTimer, timedMode]);
 
-  // Handle playing → gameOver transition when timer reaches zero
+  // Handle playing → gameOver transition when timer reaches zero (only in timed mode)
   // Uses subscription pattern to avoid setState in effect body
   useEffect(() => {
+    if (!timedMode) return; // No auto-end for untimed games
+
     const unsubscribe = useTimerStore.subscribe(
       (state) => state.timeRemaining,
       (timeRemaining) => {
@@ -114,7 +121,7 @@ export default function BoggleGame() {
       }
     );
     return unsubscribe;
-  }, [endGame]);
+  }, [endGame, timedMode]);
 
   // Record stats when game ends
   useEffect(() => {
@@ -150,6 +157,7 @@ export default function BoggleGame() {
     resetGame();
     leaveSession();
     setLocalGameMode(null);
+    setTimedMode(true);
     setGamePhase('lobby');
   }, [stopTimer, resetGame, leaveSession]);
 
@@ -178,11 +186,27 @@ export default function BoggleGame() {
     }
   }, [rotationAnimation, rotateBoard]);
 
-  // Game mode handlers - all transition to 'loading' phase
+  // Game mode handlers
   const handlePlaySolo = useCallback(() => {
     setLocalGameMode('solo');
+    setGamePhase('modeSelect');
+  }, []);
+
+  const handleStartTimed = useCallback(() => {
+    setTimedMode(true);
     setGamePhase('loading');
   }, []);
+
+  const handleStartUntimed = useCallback(() => {
+    setTimedMode(false);
+    setGamePhase('loading');
+  }, []);
+
+  // End game manually (for untimed mode)
+  const handleEndGame = useCallback(() => {
+    setGamePhase('gameOver');
+    endGame();
+  }, [endGame]);
 
   const handleHost = useCallback(
     (pin?: string) => {
@@ -236,6 +260,31 @@ export default function BoggleGame() {
         onBack={handleBack}
         initialJoinCode={initialJoinCode}
       />
+    );
+  }
+
+  if (gamePhase === 'modeSelect') {
+    return (
+      <GameLayout gameId="boggle" gameName="Boggle" onBack={handleBackToLobby}>
+        <div className="boggle-game">
+          <div className="mode-select">
+            <h2>Choose Game Mode</h2>
+            <p>How would you like to play?</p>
+            <div className="mode-buttons">
+              <button className="mode-btn timed" onClick={handleStartTimed}>
+                <span className="mode-icon">⏱</span>
+                <span className="mode-label">Timed</span>
+                <span className="mode-desc">3 minutes to find words</span>
+              </button>
+              <button className="mode-btn untimed" onClick={handleStartUntimed}>
+                <span className="mode-icon">∞</span>
+                <span className="mode-label">Relaxed</span>
+                <span className="mode-desc">Play at your own pace</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </GameLayout>
     );
   }
 
@@ -313,7 +362,11 @@ export default function BoggleGame() {
 
         <div className="boggle-game-bar">
           <div className="boggle-stats-row">
-            <Timer timeRemaining={timeRemaining} />
+            {timedMode ? (
+              <Timer timeRemaining={timeRemaining} />
+            ) : (
+              <div className="relaxed-indicator">Relaxed Mode</div>
+            )}
             <div className="score-display">
               <strong>{score}</strong> pts
             </div>
@@ -328,13 +381,24 @@ export default function BoggleGame() {
             >
               <span className="rotate-icon">↺</span>
             </button>
-            <button
-              className="control-btn new-game-btn"
-              onClick={handleNewGame}
-              aria-label="Start a new game"
-            >
-              New Game
-            </button>
+            {timedMode ? (
+              <button
+                className="control-btn new-game-btn"
+                onClick={handleNewGame}
+                aria-label="Start a new game"
+              >
+                New Game
+              </button>
+            ) : (
+              <button
+                className="control-btn end-game-btn"
+                onClick={handleEndGame}
+                disabled={gamePhase === 'gameOver'}
+                aria-label="End current game"
+              >
+                End Game
+              </button>
+            )}
             <button
               className="control-btn rotate-btn"
               onClick={handleRotateRight}
@@ -348,9 +412,6 @@ export default function BoggleGame() {
         </div>
 
         <div className="boggle-content">
-          <div className={`current-word${currentWord ? '' : ' current-word--empty'}`}>
-            {currentWord || '\u00A0'}
-          </div>
           <BoggleBoard
             board={board}
             selectedPath={currentPath}
@@ -360,7 +421,6 @@ export default function BoggleGame() {
             disabled={gamePhase === 'gameOver'}
             rotationAnimation={rotationAnimation}
             onRotationAnimationEnd={handleRotationAnimationEnd}
-            showCurrentWord={false}
           />
           <div className="boggle-sidebar">
             <WordList words={foundWords} totalScore={score} />
@@ -369,7 +429,7 @@ export default function BoggleGame() {
 
         {gamePhase === 'gameOver' && (
           <div className="game-over-panel">
-            <h2>Time's Up!</h2>
+            <h2>{timedMode ? "Time's Up!" : 'Game Over'}</h2>
             <p>
               Final Score: <strong>{score}</strong>
             </p>
